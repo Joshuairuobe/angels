@@ -1896,21 +1896,8 @@ async function loadAppointments(){
         const id = btn.dataset.pay;
         btn.disabled = true;
         try{
-          const token = await currentUser.getIdToken();
-const res = await fetch(
-  "https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({ bookingId: id })
-  }
-);
-const data = await res.json();
-if (!res.ok) throw new Error(data?.error || "Could not start payment.");
-window.location.href = data.url;
+          await update(ref(db, `bookings/${id}`), { depositPaid:true, updatedAt: Date.now() });
+          toast(apptToast, "Deposit recorded (simulated).");
           await loadAppointments();
         }catch(e){
           console.error(e);
@@ -1947,54 +1934,36 @@ window.location.href = data.url;
 }
 
 /* ===================== INIT UI ===================== */
-/* ===================== INIT UI ===================== */
 renderServices();
-
+const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
 const payDepositBtn = document.getElementById("payDepositBtn");
 
 payDepositBtn.addEventListener("click", async () => {
   payDepositBtn.disabled = true;
 
   try {
-    if (!currentUser) throw new Error("Please sign in again.");
-
-    // Safety: make sure selection is complete
-    const ready =
-      selectedServices.length &&
-      selectedStylistId &&
-      dateSelect.value &&
-      selectedTime;
-
-    if (!ready) throw new Error("Please complete service, stylist, date and time.");
-
-    // 1) Create a HOLD booking (awaiting payment)
+    // 1) Create a HOLD booking (not confirmed)
     const bookingId = await createBooking({
       depositPaid: false,
       status: "awaiting_payment"
     });
 
-    // 2) Get Firebase ID token (required by your Cloud Function)
-    const token = await currentUser.getIdToken();
-
-    // 3) Ask server to create Stripe Checkout Session (NOT a Payment Link)
-    const res = await fetch(
-      "https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ bookingId })
-      }
-    );
+    // 2) Create Stripe Checkout Session (server) and get redirect URL
+    const res = await fetch("https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bookingId,
+        amount: 10,            // deposit (£10)
+        currency: "gbp",
+        email: currentUser.email
+      })
+    });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || "Could not start payment.");
+    if (!res.ok || !data?.url) throw new Error(data?.error || "Could not start payment.");
 
-    if (!data?.url) throw new Error("No checkout URL returned.");
-
-    // 4) Redirect user to Stripe Checkout (Google Pay / Apple Pay / Card / Link)
+    // 3) Redirect to Stripe Checkout
     window.location.href = data.url;
 
   } catch (e) {
