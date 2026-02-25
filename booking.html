@@ -839,7 +839,7 @@ const serviceSearch = document.getElementById("serviceSearch");
 const serviceCategory = document.getElementById("serviceCategory");
 const serviceList = document.getElementById("serviceList");
 const stylistGrid = document.getElementById("stylistGrid");
-
+const payDepositBtn = document.getElementById("payDepositBtn");
 const dateSelect = document.getElementById("dateSelect");
 const timeSelect = document.getElementById("timeSelect");
 const timeSlots = document.getElementById("timeSlots");
@@ -1374,33 +1374,19 @@ function syncSelectedStylistCard(){
   selectedProf.textContent = prof;
   selectedAvatar.style.backgroundImage = u.photoURL ? `url('${u.photoURL}')` : "";
 }
-async function notifyStylistViaFormspree() {
-  const stylist = getPublicProfile(selectedStylistId);
-
-  const stylistName =
-    stylist.displayName?.trim() ||
-    stylist.name ||
-    "Stylist";
-
-  const stylistRole =
-    stylist.profession ||
-    stylist.role ||
-    "Stylist";
-
-  const clientName =
-    clientProfile.displayName ||
-    clientProfile.name ||
-    currentUser.displayName ||
-    currentUser.email; // final fallback
+async function notifyStylistViaFormspree(details) {
+  const stylist = stylistsIndex[details.stylistId]?.publicProfile || {};
+  const stylistName = stylist.displayName?.trim() || stylist.name || "Stylist";
+  const stylistRole = stylist.profession || stylist.role || "Stylist";
 
   const payload = {
     stylist: `${stylistName} (${stylistRole})`,
-    client: clientName,
-    clientEmail: currentUser.email || "",
-    services: selectedServices.map(s => s.name).join(" + "),
-    date: dateSelect.value,
-    time: selectedTime,
-    notes: document.getElementById("clientNotes").value.trim() || "—"
+    client: details.clientName || details.clientEmail || "Client",
+    clientEmail: details.clientEmail || "",
+    services: (details.services || []).map(s => s.name).join(" + "),
+    date: details.date,
+    time: details.time,
+    notes: details.notes || "—"
   };
 
   const res = await fetch("https://formspree.io/f/mreaadoz", {
@@ -1734,103 +1720,10 @@ function renderSummary(){
   sumRemaining.textContent = money(remaining);
 }
 
-async function finalizeBooking({ depositPaid, source }) {
-  if (!selectedServices.length)
-    return toast(payToast, "Pick a service.");
-
-  if (!selectedStylistId)
-    return toast(payToast, "Pick a stylist.");
-
-  if (!dateSelect.value)
-    return toast(payToast, "Pick a date.");
-
-  if (!selectedTime)
-    return toast(payToast, "Pick a time.");
-
-  try {
-    // 📩 Send Formspree notification
-    await notifyStylistViaFormspree();
-
-    // 🧾 Create booking
-    await createBooking({ depositPaid });
-
-    toast(
-      payToast,
-      source === "test"
-        ? "Test booking created & stylist notified ✅"
-        : "Booking confirmed & stylist notified ✅"
-    );
-  } catch (err) {
-    console.error(err);
-    toast(payToast, "Failed to create booking.");
-  }
-}
 
 /* ===================== CREATE BOOKING ===================== */
-async function createBooking({ depositPaid, status = "pending" }) {
-  if (!selectedServices.length) throw new Error("Pick a service");
-  if (!selectedStylistId) throw new Error("Pick a stylist");
-  if (!dateSelect.value) throw new Error("Pick a date");
-  if (!selectedTime) throw new Error("Pick a time");
 
-  // Create a booking key now
-  const bookingRef = push(ref(db, "bookings"));
-  const bookingId = bookingRef.key;
 
-  const price = totalPrice();
-  const duration = totalDuration();
-  const remaining = Math.max(0, price - DEPOSIT);
-
-  const clientSnap = await get(ref(db, `users/${currentUser.uid}`));
-  const client = clientSnap.exists() ? clientSnap.val() : {};
-
-  const payload = {
-    bookingId, // handy for debugging
-
-    clientId: currentUser.uid,
-    clientEmail: currentUser.email || "",
-    clientName: client.displayName || client.name || "",
-    clientPhone: client.phone || "",
-    notes: document.getElementById("clientNotes").value.trim() || "",
-
-    stylistId: selectedStylistId,
-
-    // so your "My Appointments" shows correctly
-    serviceName: selectedServices.map(s => s.name).join(" + "),
-
-    services: selectedServices.map(s => ({
-      serviceId: s.id,
-      name: s.name,
-      durationMins: Number(s.durationMins || 0),
-      price: Number(s.price || 0)
-    })),
-
-    totalDurationMins: duration,
-
-    date: dateSelect.value,
-    time: selectedTime,
-    startTime: selectedTime,
-    endTime: addMinsToTime(selectedTime, duration),
-
-    price,
-    deposit: DEPOSIT,
-    remaining,
-
-    // IMPORTANT: block slot even before payment
-    status, // "awaiting_payment" or "pending"
-    depositPaid: !!depositPaid,
-
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-
-    // Optional safety: auto-expire unpaid holds after 30 mins
-    expiresAt: status === "awaiting_payment" ? Date.now() + 30 * 60 * 1000 : null
-  };
-
-  await set(bookingRef, payload);
-
-  return bookingId;
-}
 function resetAfterBooking(){
   // keep service & stylist so user can book similar service again quickly
   selectedTime = null;
@@ -1838,7 +1731,60 @@ function resetAfterBooking(){
   timeSelect.value = "";
   summaryBox.style.display = "none";
 }
+async function createBookingFromDetails(details, { depositPaid, status = "pending", sessionId = null } = {}) {
+  if (!currentUser) throw new Error("Not signed in");
+  if (!details?.stylistId || !details?.date || !details?.time) throw new Error("Missing booking details");
 
+  const bookingRef = push(ref(db, "bookings"));
+  const bookingId = bookingRef.key;
+
+  const clientSnap = await get(ref(db, `users/${currentUser.uid}`));
+  const client = clientSnap.exists() ? clientSnap.val() : {};
+
+  const payload = {
+    bookingId,
+
+    clientId: currentUser.uid,
+    clientEmail: details.clientEmail || currentUser.email || "",
+    clientName: details.clientName || client.displayName || client.name || "",
+    clientPhone: details.clientPhone || client.phone || "",
+    notes: details.notes || "",
+
+    stylistId: details.stylistId,
+
+    serviceName: details.serviceName || (details.services || []).map(s => s.name).join(" + "),
+
+    services: (details.services || []).map(s => ({
+      serviceId: s.serviceId,
+      name: s.name,
+      durationMins: Number(s.durationMins || 0),
+      price: Number(s.price || 0)
+    })),
+
+    totalDurationMins: Number(details.totalDurationMins || 0),
+
+    date: details.date,
+    time: details.time,
+    startTime: details.startTime || details.time,
+    endTime: details.endTime || addMinsToTime(details.time, Number(details.totalDurationMins || 0)),
+
+    price: Number(details.price || 0),
+    deposit: Number(details.deposit || DEPOSIT),
+    remaining: Number(details.remaining || 0),
+
+    status,
+    depositPaid: !!depositPaid,
+
+    // helpful audit fields
+    stripeSessionId: sessionId || null,
+
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+
+  await set(bookingRef, payload);
+  return bookingId;
+}
 
 /* ===================== MY APPOINTMENTS + CANCEL ===================== */
 async function loadAppointments(){
@@ -1880,12 +1826,7 @@ async function loadAppointments(){
             </div>
           </div>
 
-          <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
-            ${
-              (!b.depositPaid && st !== "cancelled" && st !== "rejected")
-              ? `<button class="link-btn" data-pay="${safeText(b.id)}">Pay deposit</button>`
-              : ``
-            }
+          
             <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">
   To cancel, please <a href="contact.html" style="color: var(--muted); text-decoration: underline;">contact the salon</a> directly.
 </p>
@@ -1897,22 +1838,7 @@ async function loadAppointments(){
     }).join("");
 
     // pay deposit (simulated)
-    appointmentsList.querySelectorAll("[data-pay]").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const id = btn.dataset.pay;
-        btn.disabled = true;
-        try{
-          await update(ref(db, `bookings/${id}`), { depositPaid:true, updatedAt: Date.now() });
-          toast(apptToast, "Deposit recorded (simulated).");
-          await loadAppointments();
-        }catch(e){
-          console.error(e);
-          toast(apptToast, "Update blocked by DB rules.");
-          btn.disabled = false;
-        }
-      });
-    });
-
+    
 
     // cancel booking
     appointmentsList.querySelectorAll("[data-cancel]").forEach(btn=>{
@@ -1943,7 +1869,7 @@ async function loadAppointments(){
 renderServices();
 const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
 
-const payDepositBtn = document.getElementById("payDepositBtn");
+
 const confirmBookingBtn = document.getElementById("confirmBookingBtn");
 const paymentStatusText = document.getElementById("paymentStatusText");
 
@@ -2042,7 +1968,7 @@ async function verifyDepositWithServer(sessionId){
 async function bootPaymentVerification(){
   const sid = getQueryParam("session_id");
   if (!sid) {
-    setConfirmLocked(); // normal state: not paid yet
+    setConfirmLocked();
     return;
   }
 
@@ -2051,11 +1977,31 @@ async function bootPaymentVerification(){
 
   try {
     const paid = await verifyDepositWithServer(sid);
+
     if (!paid) {
       setConfirmLocked("Deposit not confirmed. If you just paid, refresh in a few seconds.");
       return;
     }
+
     setConfirmUnlocked();
+
+    // ✅ Restore summary UI AFTER bootstrap has loaded stylistsIndex/serviceOptions
+    const raw = sessionStorage.getItem("pendingBookingDetails");
+    if (raw) {
+      const d = JSON.parse(raw);
+
+      summaryBox.style.display = "block";
+      sumService.textContent = (d.services || []).map(s => s.name).join(" + ");
+
+      const sty = stylistsIndex[d.stylistId]?.publicProfile || {};
+      sumStylist.textContent =
+        `${sty.displayName?.trim() || sty.name || "Stylist"} (${sty.profession || sty.role || "Stylist"})`;
+
+      sumDateTime.textContent = `${d.date} · ${d.time} – ${d.endTime}`;
+      sumPrice.textContent = money(d.price);
+      sumRemaining.textContent = money(d.remaining);
+    }
+
   } catch (e) {
     console.error(e);
     setConfirmLocked(e.message || "Could not verify payment.");
@@ -2074,22 +2020,23 @@ confirmBookingBtn.addEventListener("click", async () => {
 
     const bookingDetails = JSON.parse(raw);
 
-    // (Optional) re-verify right now for extra safety
+    // re-verify right now (good)
     const paid = await verifyDepositWithServer(depositSessionId);
     if (!paid) throw new Error("Deposit not confirmed yet. Please try again shortly.");
 
-    // ✅ now create booking in DB + notify stylist
-    await notifyStylistViaFormspree();
+    // notify + create booking using saved details (NOT UI state)
+    await notifyStylistViaFormspree(bookingDetails);
 
-    await createBooking({
+    await createBookingFromDetails(bookingDetails, {
       depositPaid: true,
-      status: "pending"
+      status: "pending",
+      sessionId: depositSessionId
     });
 
     toast(payToast, "✅ Booking confirmed!");
     sessionStorage.removeItem("pendingBookingDetails");
 
-    // Clean URL (remove session_id)
+    // remove session_id from url
     const url = new URL(window.location.href);
     url.searchParams.delete("session_id");
     window.history.replaceState({}, "", url.toString());
