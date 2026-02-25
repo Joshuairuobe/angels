@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment Success</title>
+  <style>
+    body{font-family:Inter,system-ui;margin:0;display:grid;place-items:center;min-height:100vh;background:#fff;color:#0b0b0b}
+    .card{max-width:520px;width:92%;border:1px solid #e9e9e9;border-radius:18px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.06)}
+    h1{margin:0 0 10px;font-size:22px}
+    p{margin:0 0 14px;color:#6f6f6f;line-height:1.5}
+    button{width:100%;padding:14px;border-radius:12px;border:0;background:#0b0b0b;color:#fff;font-weight:600;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .ok{color:#1f7a3f;font-weight:700}
+    .err{color:#b00020}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="ok">✅ Payment received!</h1>
+    <p>Click below to finalize your booking.</p>
+
+    <button id="completeBtn">Complete My Booking</button>
+    <p id="msg" style="margin-top:12px;"></p>
+  </div>
+
+  <script>
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+  messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+});
+
+
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get("session_id");
+    const completeBtn = document.getElementById("completeBtn");
+    const msg = document.getElementById("msg");
+
+    if (!sessionId) {
+      msg.textContent = "Missing session_id. Please contact support.";
+      msg.className = "err";
+      completeBtn.disabled = true;
+    }
+
+    completeBtn.addEventListener("click", async () => {
+      completeBtn.disabled = true;
+      msg.textContent = "Finalizing booking…";
+
+      try {
+        const raw = sessionStorage.getItem("pendingBookingDetails");
+        if (!raw) throw new Error("Missing booking details. Please try again from booking page.");
+        const bookingDetails = JSON.parse(raw);
+
+        const token = await currentUser.getIdToken();
+
+await fetch(
+  "https://us-central1-angelshairmall.cloudfunctions.net/finalizeBooking",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` // ⭐ REQUIRED
+    },
+    body: JSON.stringify({
+      sessionId,
+      bookingDetails
+    })
+  }
+);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "Failed to finalize booking.");
+
+        // Clear pending details so user can’t double-submit easily
+        sessionStorage.removeItem("pendingBookingDetails");
+
+        msg.textContent = "✅ Booking created successfully!";
+        msg.className = "ok";
+
+        // Optionally redirect back to booking page / appointments
+        // location.href = "booking.html";
+      } catch (e) {
+        msg.textContent = e.message || "Something went wrong.";
+        msg.className = "err";
+        completeBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
