@@ -736,12 +736,6 @@ input:focus, select:focus{ border-color:#cfcfcf; }
 </button>
   
   </div>
-<button class="secondary" id="confirmBookingBtn" type="button" disabled>
-  Confirm booking
-</button>
-<p class="small" id="paymentStatusText" style="margin-top:10px;">
-  Please pay the £10 deposit to unlock confirmation.
-</p>
 
 </div>
 
@@ -1032,28 +1026,20 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   // Profile must exist (Option A can create Auth user before DB write)
-  const snap = await get(ref(db, `users/${user.uid}`));
-  if (!snap.exists()) {
-    window.location.href = "finish-signup.html";
-    return;
+    const snap = await get(ref(db, `users/${user.uid}`));
+
+  let profile = snap.exists() ? snap.val() : null;
+
+  if (!profile) {
+    profile = {
+      uid: user.uid,
+      email: user.email || "",
+      name: user.displayName || "Customer",
+      role: "client",
+      createdAt: Date.now()
+    };
+    await set(ref(db, `users/${user.uid}`), profile);
   }
-
-  const profile = snap.val();
-
-  const nameOk = profile?.name && String(profile.name).trim().length >= 2;
-  const phoneOk = profile?.phone && /^\+\d{8,15}$/.test(String(profile.phone).trim());
-  const phoneVerifiedOk = profile?.phoneVerified === true;
-
-  if (!nameOk || !phoneOk) {
-    window.location.href = "complete-profile.html";
-    return;
-  }
-
-  if (!phoneVerifiedOk) {
-    window.location.href = "finish-signup.html";
-    return;
-  }
-
   // ✅ Passed all gates
   currentUser = user;
   whoami.textContent = user.email || "(no email)";
@@ -1062,7 +1048,7 @@ onAuthStateChanged(auth, async (user) => {
 
   await bootstrap();
   await loadShopRules();
-  await bootPaymentVerification();
+
 });
 
 /* ===================== BOOTSTRAP ===================== */
@@ -1873,33 +1859,18 @@ const all = Object.entries(snap.val() || {})
 
 /* ===================== INIT UI ===================== */
 renderServices();
-const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_cNidRa98PapU4CqfeM3gk00";
 
 
 const confirmBookingBtn = document.getElementById("confirmBookingBtn");
 const paymentStatusText = document.getElementById("paymentStatusText");
 
-let depositSessionId = null;
-let depositVerifiedPaid = false;
 
-function getQueryParam(name){
-  return new URLSearchParams(window.location.search).get(name);
-}
 
-function setConfirmLocked(msg){
-  depositVerifiedPaid = false;
-  confirmBookingBtn.disabled = true;
-  paymentStatusText.textContent = msg || "Please pay the £10 deposit to unlock confirmation.";
-}
 
-function setConfirmUnlocked(){
-  depositVerifiedPaid = true;
-  confirmBookingBtn.disabled = false;
-  paymentStatusText.textContent = "✅ Deposit confirmed. You can now confirm your booking.";
-}
 
 // 1) Pay deposit → save booking details locally → go to Stripe payment link
-payDepositBtn.addEventListener("click", async () => {
+payDepositBtn.addEventListener("click", () => {
   try {
     if (!currentUser) throw new Error("You must be signed in.");
     if (!selectedServices.length) throw new Error("Pick a service");
@@ -1938,124 +1909,16 @@ payDepositBtn.addEventListener("click", async () => {
 
     localStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
 
-    // Optional UX: lock confirm until we come back with session_id
-    setConfirmLocked("Redirecting to payment…");
-
-    // Go to Stripe Payment Link
+    // 🔥 Redirect to Stripe
     window.location.href = STRIPE_PAYMENT_LINK;
 
   } catch (e) {
-    console.error(e);
-    toast(payToast, e.message || "Payment failed to start.");
+    toast(payToast, e.message || "Could not start payment.");
   }
 });
-async function verifyDepositWithServer(sessionId){
-  // Call your Cloud Function which checks Stripe payment_status
-  const token = await currentUser.getIdToken();
 
-  const res = await fetch(
-    "https://us-central1-angelshairmall.cloudfunctions.net/verifyDeposit",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ sessionId })
-    }
-  );
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || "Could not verify payment");
-  return !!data?.paid;
-}
 
 // On page load, if Stripe redirected back with session_id, verify it
-async function bootPaymentVerification(){
-  const sid = getQueryParam("session_id");
-  if (!sid) {
-    setConfirmLocked();
-    return;
-  }
-
-  depositSessionId = sid;
-  setConfirmLocked("Checking deposit payment…");
-
-  try {
-    const paid = await verifyDepositWithServer(sid);
-
-    if (!paid) {
-      setConfirmLocked("Deposit not confirmed. If you just paid, refresh in a few seconds.");
-      return;
-    }
-
-    setConfirmUnlocked();
-
-    // ✅ Restore summary UI AFTER bootstrap has loaded stylistsIndex/serviceOptions
-   const raw = localStorage.getItem("pendingBookingDetails");
-    if (raw) {
-      const d = JSON.parse(raw);
-
-      summaryBox.style.display = "block";
-      sumService.textContent = (d.services || []).map(s => s.name).join(" + ");
-
-      const sty = stylistsIndex[d.stylistId]?.publicProfile || {};
-      sumStylist.textContent =
-        `${sty.displayName?.trim() || sty.name || "Stylist"} (${sty.profession || sty.role || "Stylist"})`;
-
-      sumDateTime.textContent = `${d.date} · ${d.time} – ${d.endTime}`;
-      sumPrice.textContent = money(d.price);
-      sumRemaining.textContent = money(d.remaining);
-    }
-
-  } catch (e) {
-    console.error(e);
-    setConfirmLocked(e.message || "Could not verify payment.");
-  }
-}
-confirmBookingBtn.addEventListener("click", async () => {
-  confirmBookingBtn.disabled = true;
-
-  try {
-    if (!depositVerifiedPaid || !depositSessionId) {
-      throw new Error("Please pay the £10 deposit first.");
-    }
-
-    const raw = localStorage.getItem("pendingBookingDetails");
-    if (!raw) throw new Error("Missing booking details. Please reselect and try again.");
-
-    const bookingDetails = JSON.parse(raw);
-
-    // re-verify right now (good)
-    const paid = await verifyDepositWithServer(depositSessionId);
-    if (!paid) throw new Error("Deposit not confirmed yet. Please try again shortly.");
-
-    // notify + create booking using saved details (NOT UI state)
-    await notifyStylistViaFormspree(bookingDetails);
-
-    await createBookingFromDetails(bookingDetails, {
-      depositPaid: true,
-      status: "pending",
-      sessionId: depositSessionId
-    });
-
-    toast(payToast, "✅ Booking confirmed!");
-    localStorage.removeItem("pendingBookingDetails");
-
-    // remove session_id from url
-    const url = new URL(window.location.href);
-    url.searchParams.delete("session_id");
-    window.history.replaceState({}, "", url.toString());
-
-    await loadAppointments();
-    resetAfterBooking();
-
-  } catch (e) {
-    console.error(e);
-    toast(payToast, e.message || "Could not confirm booking.");
-    confirmBookingBtn.disabled = false;
-  }
-});
 
 // Run after auth is ready (inside your onAuthStateChanged after bootstrap)
 </script>
