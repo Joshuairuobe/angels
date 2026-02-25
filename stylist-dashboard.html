@@ -1663,6 +1663,25 @@ async function bootstrapAll(){
   renderWalkinServicePicker();
 }
 /* ===================== BOOKINGS ===================== */
+async function cleanupExpiredBookings(bookingsObj){
+  const now = Date.now();
+  const updates = [];
+
+  Object.entries(bookingsObj || {}).forEach(([id, b]) => {
+    const st = (b.status || "").toLowerCase();
+    if (st === "awaiting_payment" && b.expiresAt && now > b.expiresAt) {
+      updates.push(
+        update(ref(db, `bookings/${id}`), {
+          status: "expired",        // or "cancelled"
+          expiredAt: now,
+          updatedAt: now
+        })
+      );
+    }
+  });
+
+  if (updates.length) await Promise.allSettled(updates);
+}
 async function loadBookings() {
   bookingsList.innerHTML = `<div class="mono">Loading…</div>`;
 
@@ -1682,6 +1701,7 @@ async function loadBookings() {
     }
 
     const bookings = snap.val();
+    await cleanupExpiredBookings(bookings);
     const serviceCount = {};
     const monthlyCount = {};
     const STATUS_PRIORITY = {
@@ -1700,17 +1720,23 @@ async function loadBookings() {
     }));
 
     // Filter by activeStatus
-    const filtered = allBookings
+    const now = Date.now();
+
+const filtered = allBookings
   .filter(b => {
     const st = (b.status || "pending").toLowerCase();
 
-    if (activeStatus === "pending") {
-      // show both normal pending + awaiting deposit
-      return st === "pending" || st === "awaiting_payment";
+    // ✅ hide expired unpaid holds
+    if (st === "awaiting_payment" && b.expiresAt && now > b.expiresAt) {
+      return false;
     }
 
+    if (activeStatus === "pending") {
+      return st === "pending" || st === "awaiting_payment";
+    }
     return st === activeStatus;
   })
+  
       .sort((a, b) => {
         const sa = STATUS_PRIORITY[a.status] ?? 99;
         const sb = STATUS_PRIORITY[b.status] ?? 99;
