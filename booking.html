@@ -1936,36 +1936,78 @@ async function loadAppointments(){
 /* ===================== INIT UI ===================== */
 renderServices();
 const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
+
+
+</script>
+<!-- Replace the payDepositBtn listener with this -->
+<script>
 const payDepositBtn = document.getElementById("payDepositBtn");
 
 payDepositBtn.addEventListener("click", async () => {
   payDepositBtn.disabled = true;
 
   try {
-    // 1) Create a HOLD booking (not confirmed)
-    const bookingId = await createBooking({
-      depositPaid: false,
-      status: "awaiting_payment"
-    });
+    if (!selectedServices.length) throw new Error("Pick a service");
+    if (!selectedStylistId) throw new Error("Pick a stylist");
+    if (!dateSelect.value) throw new Error("Pick a date");
+    if (!selectedTime) throw new Error("Pick a time");
 
-    // 2) Create Stripe Checkout Session (server) and get redirect URL
-    const res = await fetch("https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        bookingId,
-        amount: 10,            // deposit (£10)
-        currency: "gbp",
-        email: currentUser.email
-      })
-    });
+    const duration = totalDuration();
+    const price = totalPrice();
+
+    const bookingDetails = {
+      clientId: currentUser.uid,
+      clientEmail: currentUser.email,
+      clientName: clientProfile.displayName || clientProfile.name,
+      clientPhone: clientProfile.phone,
+      notes: document.getElementById("clientNotes").value.trim(),
+
+      stylistId: selectedStylistId,
+      serviceName: selectedServices.map(s => s.name).join(" + "),
+      services: selectedServices.map(s => ({
+        serviceId: s.id,
+        name: s.name,
+        durationMins: Number(s.durationMins || 0),
+        price: Number(s.price || 0)
+      })),
+
+      totalDurationMins: duration,
+      date: dateSelect.value,
+      time: selectedTime,
+      startTime: selectedTime,
+      endTime: addMinsToTime(selectedTime, duration),
+
+      price,
+      deposit: 10,
+      remaining: Math.max(0, price - 10)
+    };
+
+    // ✅ Save locally so success page can "complete booking"
+    sessionStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
+
+    // ✅ Create Checkout Session (server)
+    const token = await currentUser.getIdToken();
+
+const res = await fetch(
+  "https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` // ⭐ ADD THIS
+    },
+    body: JSON.stringify({
+      amount: 10 * 100,
+      currency: "gbp",
+      serviceName: selectedServices.map(s => s.name).join(" + ")
+    })
+  }
+);
 
     const data = await res.json();
     if (!res.ok || !data?.url) throw new Error(data?.error || "Could not start payment.");
 
-    // 3) Redirect to Stripe Checkout
     window.location.href = data.url;
-
   } catch (e) {
     console.error(e);
     toast(payToast, e.message || "Payment failed to start.");
@@ -1973,8 +2015,6 @@ payDepositBtn.addEventListener("click", async () => {
   }
 });
 </script>
-
-
 <!--
 ==================== IMPORTANT RTDB NOTES (for this booking page) =====================
 
