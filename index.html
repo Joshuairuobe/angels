@@ -1,403 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="/logo 1.JPG">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Angels Hair Mall",
-  "url": "https://angelshairmall.co",
-  "logo": "https://angelshairmall.co/logo1.JPG"
-}
-</script>
+  <!-- ✅ IMPORTANT: remove spaces in filenames on your server
+       Use: /logo1.JPG (not "logo 1 .JPG") -->
+  <link rel="icon" type="image/jpeg" sizes="32x32" href="/logo1.JPG">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Angels Hair Mall",
+    "url": "https://angelshairmall.co",
+    "logo": "https://angelshairmall.co/logo1.JPG"
+  }
+  </script>
 
   <meta name="google-site-verification" content="4-xuI5j27HFZDSrCwUsWpwfOxTRbWOTC8WXFyMF9s2o" />
-<meta charset="UTF-8">
-<title>Angels Hair Mall | Afro Hair, Braids, Locs & Barbers in UK</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta name="description" content="Book professional afro hair, braids, locs, barber cuts, lashes and beauty services at Angels Hair Mall. £10 deposit secures your appointment." />
+  <!-- ✅ ONE title only -->
+  <title>Angels Hair Mall | Afro Hair, Braids, Locs & Barbers in UK</title>
 
-<meta name="keywords" content="afro hair salon, braids near me, dreadlocks UK, barber shop, weave install, wig install, loc retwist, hair salon UK" />
+  <meta name="description" content="Book professional afro hair, braids, locs, barber cuts, lashes and beauty services at Angels Hair Mall. £10 deposit secures your appointment." />
+  <meta name="keywords" content="afro hair salon, braids near me, dreadlocks UK, barber shop, weave install, wig install, loc retwist, hair salon UK" />
+  <meta name="author" content="Angels Hair Mall" />
+  <meta name="robots" content="index, follow">
 
-<meta name="author" content="Angels Hair Mall" />
+  <meta property="og:title" content="Angels Hair Mall" />
+  <meta property="og:description" content="Premium hair and beauty services. Book online today." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://angelshairmall.co/" />
+  <meta property="og:image" content="https://angelshairmall.co/logo1.JPG" />
 
-<meta property="og:title" content="Angels Hair Mall" />
-<meta property="og:description" content="Premium hair and beauty services. Book online today." />
-<meta property="og:type" content="website" />
-<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-<meta name="robots" content="index, follow">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
 
-<title>Angels Hair Mall</title>
+  <style>
+    :root{
+      --ink:#0b0b0b;
+      --muted:#6f6f6f;
+      --line:#e9e9e9;
+      --soft:#f7f7f7;
+      --gold:#b38b2e;
+      --radius:18px;
+      --shadow: 0 18px 50px rgba(0,0,0,.06);
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #fff;
-  color: #000;
-  padding-top: 90px; /* FIX: prevents overlap with fixed header */
-}
-a { text-decoration: none; color: inherit; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fff;
+      color: var(--ink);
+      padding-top: 90px;
+    }
+    a { text-decoration: none; color: inherit; }
 
-header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  z-index: 1000;
-}
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--line);
+      z-index: 1000;
+    }
 
-.nav {
-  max-width: 1400px;
-  margin: auto;
-  padding: 18px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;   /* 🔑 FIX */
-}
+    .nav {
+      max-width: 1400px;
+      margin: auto;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
 
-.logo {
-  font-family: Georgia, serif;
-  letter-spacing: 2px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  white-space: nowrap;   /* 🔑 FIX */
-}
+    .logo {
+      font-family: Georgia, serif;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      white-space: nowrap;
+    }
 
-.logo-mark {
-  height: 16px;           /* very subtle */
-  width: auto;
-  display: block;
-}
+    .logo-mark {
+      height: 16px;
+      width: auto;
+      display: block;
+    }
 
+    .nav a {
+      margin-left: 30px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
 
-.nav a {
-  margin-left: 30px;
-  font-size: 13px;
-  text-transform: uppercase;
-}
-main { margin-top: 90px; }
-section {
-  max-width: 1400px;
-  margin: auto;
-  padding: 120px 40px;
-}
-h1 {
-  font-family: Georgia, serif;
-  font-size: 56px;
-  font-weight: 400;
-}
-p { color: #777; max-width: 420px; }
-.btn {
-  display: inline-block;
-  margin-top: 40px;
-  padding: 14px 36px;
-  border: 1px solid #000;
-  font-size: 13px;
-  text-transform: uppercase;
-}
-.btn:hover {
-  background: #000;
-  color: #fff;
-}
-footer {
-  border-top: 1px solid #eee;
-  padding: 40px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #777;
-}
-/* ================= CURATED GRID SECTION ================= */
+    main { margin-top: 90px; }
 
-.curated-section {
-  padding: 120px 40px;
-  background: #fff;
-  text-align: center;
-}
+    section {
+      max-width: 1400px;
+      margin: auto;
+      padding: 120px 40px;
+    }
 
-.curated-title {
-  font-size: 28px;
-  letter-spacing: 2px;
-  font-weight: 400;
-  margin-bottom: 80px;
-  text-transform: uppercase;
-}
+    /* ================= HERO (Luxury, clean) ================= */
+    .hero {
+      max-width: 1400px;
+      margin: auto;
+      padding: 140px 40px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
 
-/* GRID */
-.curated-grid {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 40px;
-}
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    .hero-kicker .dot{
+      width:8px;height:8px;border-radius:999px;background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(179,139,46,.10);
+    }
 
+    .hero-content h1 {
+      font-family: Georgia, serif;
+      font-size: 56px;
+      font-weight: 400;
+      margin: 18px 0 0;
+      letter-spacing: .02em;
+      line-height: 1.05;
+    }
 
+    .hero-content p {
+      margin-top: 22px;
+      max-width: 520px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
 
-.curated-item p {
-  margin-top: 20px;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-}
+    .btn {
+      display: inline-block;
+      margin-top: 34px;
+      padding: 14px 36px;
+      border: 1px solid var(--ink);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease, border-color .3s ease;
+      border-radius: 999px;
+    }
+    .btn:hover {
+      background: var(--ink);
+      color: #fff;
+      transform: translateY(-2px);
+    }
 
-/* MOBILE */
-@media (max-width: 900px) {
-  .curated-section {
-    padding: 80px 20px;
-  }
+    .hero-actions{
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-top: 8px;
+    }
+    .btn-ghost{
+      border-color: var(--line);
+      background: #fff;
+    }
+    .btn-ghost:hover{
+      background: var(--soft);
+      color: var(--ink);
+      border-color: #d8d8d8;
+      transform: translateY(-2px);
+    }
 
-  .curated-grid {
-    grid-template-columns: 1fr;
-    gap: 48px;
-  }
+    .hero-image{
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      background: #fff;
+      min-height: 520px;
+    }
 
-  .curated-title {
-    font-size: 22px;
-    margin-bottom: 48px;
-  }
-}
-/* ================= CURATED IMAGE FIX ================= */
+    .hero-image::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1200px 500px at 70% 30%, rgba(179,139,46,.12), transparent 55%),
+        linear-gradient(to bottom, rgba(0,0,0,.04), transparent 40%);
+      pointer-events:none;
+    }
 
-/* Card wrapper */
-.curated-item {
-  text-align: center;
-}
+    .hero-image img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      transform: scale(1.02);
+    }
 
-/* Fixed-ratio media container */
-.curated-media {
-  aspect-ratio: 1 / 1;   /* same as services */
-  overflow: hidden;
-}
+    .hero-card{
+      position:absolute;
+      left: 18px;
+      bottom: 18px;
+      right: 18px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .hero-card strong{
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .hero-card span{
+      display:block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
 
-/* Cropped image */
-.curated-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.8s ease;
-}
+    /* ================= CURATED GRID ================= */
+    .curated-section {
+      padding: 120px 40px;
+      background: #fff;
+      text-align: center;
+    }
 
-/* Hover */
-.curated-item:hover img {
-  transform: scale(1.03);
-}
-/* ================= SHOP HERO ================= */
+    .curated-title {
+      font-size: 28px;
+      letter-spacing: 2px;
+      font-weight: 400;
+      margin-bottom: 80px;
+      text-transform: uppercase;
+    }
 
-.shop-hero {
-  position: relative;
-  height: 80vh;
-  background: url("images/shop-hero.jpg") center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .curated-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
 
-.shop-overlay {
-  text-align: center;
-  color: #fff;
-}
+    .curated-item { text-align: center; }
+    .curated-media { aspect-ratio: 1 / 1; overflow: hidden; border-radius: 16px; border:1px solid var(--line); background: var(--soft); }
+    .curated-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.8s ease;
+    }
+    .curated-item:hover img { transform: scale(1.03); }
+    .curated-item p {
+      margin-top: 20px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: var(--ink);
+    }
 
-.shop-label {
-  display: inline-block;
-  font-size: 12px;
-  letter-spacing: 1.5px;
-  border: 1px solid #fff;
-  padding: 6px 14px;
-  margin-bottom: 24px;
-}
+    /* ================= SHOP HERO ================= */
+    .shop-hero {
+      position: relative;
+      height: 80vh;
+      background-image: url("pic.jpg");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
 
-.shop-overlay h2 {
-  font-family: Georgia, serif;
-  font-size: 46px;
-  font-weight: 400;
-}
+    .shop-hero::before{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.58), rgba(0,0,0,.25));
+    }
 
-.btn-light {
-  border: 1px solid #fff;
-  color: #fff;
-}
+    .shop-overlay {
+      position: relative;
+      text-align: center;
+      color: #fff;
+      padding: 0 18px;
+      max-width: 900px;
+    }
 
-.btn-light:hover {
-  background: #fff;
-  color: #000;
-}
-/* ================= SERVICES ================= */
+    .shop-label {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      border: 1px solid rgba(255,255,255,.7);
+      padding: 6px 14px;
+      margin-bottom: 24px;
+      border-radius: 999px;
+    }
 
-.services-section {
-  padding: 160px 40px;
-  text-align: center;
-}
+    .shop-overlay h2 {
+      font-family: Georgia, serif;
+      font-size: 46px;
+      font-weight: 400;
+      margin: 0;
+      letter-spacing: .02em;
+    }
 
-.services-title {
-  font-size: 28px;
-  letter-spacing: 2px;
-  font-weight: 400;
-  margin-bottom: 120px;
-}
+    .btn-light {
+      border: 1px solid rgba(255,255,255,.85);
+      color: #fff;
+    }
 
-/* GRID */
-.services-grid {
-  max-width: 1400px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 60px;
-}
+    .btn-light:hover {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
 
-/* CARD */
-.service-card h3 {
-  font-size: 14px;
-  letter-spacing: 1px;
-  margin-top: 32px;
-  margin-bottom: 16px;
-}
+    /* ================= NEW LUXURY SECTION (replaces 3 videos) ================= */
+    .signature-section{
+      padding: 150px 40px;
+      background: #fff;
+    }
 
-.service-card p {
-  font-size: 14px;
-  max-width: 320px;
-  margin: 0 auto 24px;
-}
+    .signature-head{
+      max-width: 1400px;
+      margin: 0 auto 46px;
+      display:flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 26px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 26px;
+    }
 
-.service-card a {
-  font-size: 13px;
-  text-decoration: underline;
-}
+    .signature-head h2{
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 2px;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
 
-/* VIDEO */
-.service-media {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-}
+    .signature-head p{
+      margin: 0;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
 
-.service-media video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .signature-grid{
+      max-width: 1400px;
+      margin: 0 auto;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
 
-/* MOBILE */
-@media (max-width: 900px) {
-  .services-grid {
-    grid-template-columns: 1fr;
-    gap: 80px;
-  }
+    .sig-card{
+      grid-column: span 4;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background: #fff;
+      display:flex;
+      flex-direction:column;
+      min-height: 520px;
+    }
 
-  .services-title {
-    margin-bottom: 80px;
-  }
-}
-/* ================= MOTION SYSTEM ================= */
+    .sig-media{
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow:hidden;
+      background: var(--soft);
+    }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.9s ease, transform 0.9s ease;
-  will-change: opacity, transform;
-}
+    .sig-media img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      transition: transform .9s ease;
+    }
 
-.reveal.reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+    .sig-card:hover .sig-media img{
+      transform: scale(1.04);
+    }
 
-/* Slower, more editorial variant */
-.reveal-slow {
-  transition-duration: 1.3s;
-}
-.service-card {
-  transition-delay: var(--delay);
-}
-.service-card img,
-.curated-item img {
-  transition: transform 0.8s ease;
-}
+    .sig-badge{
+      position:absolute;
+      left: 14px;
+      top: 14px;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.55);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+    }
 
-.service-card:hover img,
-.curated-item:hover img {
-  transform: scale(1.03);
-}
-.btn {
-  transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease;
-}
+    .sig-body{
+      padding: 18px 18px 20px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      flex: 1;
+    }
 
-.btn:hover {
-  transform: translateY(-2px);
-}
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-/* ================= HERO WITH IMAGE ================= */
+    .sig-title{
+      margin: 0;
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 22px;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
 
-.hero {
-  max-width: 1400px;
-  margin: auto;
-  padding: 140px 40px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 80px;
-  align-items: center;
-}
+    .sig-desc{
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+      max-width: none;
+    }
 
-.hero-content h1 {
-  font-family: Georgia, serif;
-  font-size: 56px;
-  font-weight: 400;
-}
+    .sig-meta{
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
 
-.hero-content p {
-  margin-top: 24px;
-  max-width: 420px;
-}
+    .sig-meta strong{
+      color: var(--ink);
+      font-weight: 600;
+      letter-spacing: .02em;
+      text-transform: none;
+    }
 
-.hero-image img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
+    .sig-cta{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(0,0,0,.35);
+      width: fit-content;
+      padding-bottom: 4px;
+    }
 
-/* MOBILE */
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
+    .sig-cta:hover{
+      border-bottom-color: var(--gold);
+      color: var(--gold);
+    }
 
-  .hero-image {
-    order: -1;
-  }
-}
-.shop-hero {
-  position: relative;
-  height: 80vh;
-  background-image: url("pic.jpg");
-  background-size: cover;
-  background-position: center;
-}
-.service-media video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition: transform .8s ease;
-}
+    /* ================= MOTION SYSTEM ================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+      will-change: opacity, transform;
+    }
+    .reveal.reveal-visible { opacity: 1; transform: translateY(0); }
+    .reveal-slow { transition-duration: 1.3s; }
 
-.service-card:hover video{
-  transform: scale(1.05);
-}
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-</style>
+    /* ================= GUCCI-STYLE FOOTER ================= */
+    .footer {
+      background: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .footer-intro {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 140px 40px 0;
+      text-align: center;
+    }
+
+    .footer-intro p {
+      font-size: 22px;
+      line-height: 1.5;
+      font-weight: 300;
+      opacity: 0.85;
+      max-width: none;
+      color: #fff;
+    }
+
+    .subscribe-toggle {
+      margin-top: 28px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      opacity: .9;
+    }
+    .subscribe-toggle:hover{ opacity: 1; }
+
+    .newsletter {
+      max-width: 400px;
+      margin: 40px auto 0;
+      display: none;
+    }
+
+    .newsletter input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #fff;
+      padding: 12px 0;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .newsletter input::placeholder { color: #aaa; }
+
+    .footer-links {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 140px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 90px;
+    }
+
+    .footer-col h6 {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 14px;
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 14px;
+      opacity: 0.9;
+    }
+
+    .footer-col a:hover { text-decoration: underline; opacity: 1; }
+
+    .footer-brand {
+      position: absolute;
+      bottom: 2vw;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Georgia, serif;
+      font-size: 6vw;
+      letter-spacing: 6px;
+      line-height: 0.85;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      opacity: .18;
+    }
+
+    /* MOBILE */
+    @media (max-width: 980px){
+      .signature-head{
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .signature-grid{ gap: 14px; }
+      .sig-card{ grid-column: span 12; min-height: unset; }
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 110px 20px; }
+      .hero-image { order: -1; min-height: 420px; }
+
+      .curated-section { padding: 80px 20px; }
+      .curated-grid { grid-template-columns: 1fr; gap: 48px; }
+      .curated-title { font-size: 22px; margin-bottom: 48px; }
+
+      .nav { padding: 18px 18px; }
+      .nav a { margin-left: 18px; }
+
+      .footer-links { grid-template-columns: 1fr; gap: 48px; }
+      .footer-brand { font-size: 30vw; bottom: -12vw; }
+    }
+  </style>
 </head>
 
 <body>
@@ -405,7 +639,8 @@ footer {
 <header>
   <div class="nav">
     <div class="logo">
-      <img src="logo 1 .JPG" alt="" class="logo-mark">
+      <!-- ✅ change to your real filename -->
+      <img src="logo1.JPG" alt="Angels Hair Mall logo" class="logo-mark">
       <span>ANGELS HAIR MALL</span>
     </div>
 
@@ -420,240 +655,134 @@ footer {
   </div>
 </header>
 
-
 <main>
+  <!-- ✅ No blank hero content anymore -->
   <section class="hero">
-  <div class="hero-content">
-   <h1 id="heroTitle"><br></h1>
+    <div class="hero-content">
+      <div class="hero-kicker"><span class="dot"></span> Luxury hair & grooming</div>
+      <h1 id="heroTitle">Afro hair, braids & locs — refined.</h1>
+      <p id="heroSubtitle">
+        Premium styling with a calm, luxury experience. Book braids, loc care, barber cuts, lashes and more.
+        A <span style="color:var(--gold);">£10 deposit</span> secures your appointment and comes off the final price.
+      </p>
 
-<p id="heroSubtitle">
+      <div class="hero-actions">
+        <a id="heroButton" href="login.html" class="btn">Book now</a>
+        <a href="gallery.html" class="btn btn-ghost">View gallery</a>
+      </div>
+    </div>
 
-</p>
+    <div class="hero-image reveal reveal-slow">
+      <!-- Use your best hero image here -->
+      <img src="pic.jpg" alt="Angels Hair Mall signature styles" loading="lazy">
+      <div class="hero-card">
+        <div>
+          <strong>Appointments</strong>
+          <span>Secure your slot with a £10 deposit.</span>
+        </div>
+        <div>
+          <strong>Craft</strong>
+          <span>Precision, care, finish.</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<a id="heroButton"
-   href="login.html"
-   class="btn">
-  
-</a>
+  <section class="curated-section">
+    <h2 class="curated-title">Styles Curated by the House</h2>
 
-  </div>
+    <!-- If Firebase fills this later, it will replace these cards.
+         But it will NEVER be empty. -->
+    <div class="curated-grid">
+      <div class="curated-item">
+        <div class="curated-media"><img src="pic.jpg" alt="Knotless Braids" loading="lazy"></div>
+        <p>Knotless Braids</p>
+      </div>
+      <div class="curated-item">
+        <div class="curated-media"><img src="pic.jpg" alt="Boho Goddess Braids" loading="lazy"></div>
+        <p>Boho Goddess Braids</p>
+      </div>
+      <div class="curated-item">
+        <div class="curated-media"><img src="pic.jpg" alt="Loc Maintenance" loading="lazy"></div>
+        <p>Loc Maintenance</p>
+      </div>
+      <div class="curated-item">
+        <div class="curated-media"><img src="pic.jpg" alt="Shape Up + Beard" loading="lazy"></div>
+        <p>Shape Up + Beard</p>
+      </div>
+    </div>
+  </section>
 
-  <div class="hero-image reveal reveal-slow">
-   
-   
-   
+  <section class="shop-hero reveal reveal-slow" id="shopHero">
+    <div class="shop-overlay">
+      <span class="shop-label">Angels Hair Mall</span>
+      <!-- ✅ Not empty -->
+      <h2 id="shopTitle">Book your slot. Arrive. Leave polished.</h2>
+      <a id="shopButton" class="btn btn-light" href="login.html">Secure an appointment</a>
+    </div>
+  </section>
 
-  </div>
-</section>
+  <!-- ✅ THIS REPLACES THE 3 VIDEO SECTION (luxury editorial cards) -->
+  <section class="signature-section" id="signature">
+    <div class="signature-head">
+      <h2>Signature Experience</h2>
+      <p>
+        A luxury standard—clean parts, crisp finishes, and careful timing.
+        Choose your service, secure with a £10 deposit, and enjoy a calm, private-feel appointment.
+      </p>
+    </div>
+
+    <div class="signature-grid">
+      <article class="sig-card reveal" style="--delay:.05s">
+        <div class="sig-media">
+          <span class="sig-badge">Braids</span>
+          <img src="pic.jpg" alt="Braids service" loading="lazy">
+        </div>
+        <div class="sig-body">
+          <h3 class="sig-title">Luxury Braids</h3>
+          <p class="sig-desc">Knotless, boho, cornrows—neat sections, smooth tension, elegant finish.</p>
+          <div class="sig-meta">
+            <span>Deposit <strong>£10</strong></span>
+            <a class="sig-cta" href="services.html">Explore</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="sig-card reveal" style="--delay:.12s">
+        <div class="sig-media">
+          <span class="sig-badge">Locs</span>
+          <img src="pic.jpg" alt="Locs service" loading="lazy">
+        </div>
+        <div class="sig-body">
+          <h3 class="sig-title">Loc Care & Maintenance</h3>
+          <p class="sig-desc">Retwists, relocs, styling—structured and consistent results, every visit.</p>
+          <div class="sig-meta">
+            <span>Deposit <strong>£10</strong></span>
+            <a class="sig-cta" href="services.html">Explore</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="sig-card reveal" style="--delay:.19s">
+        <div class="sig-media">
+          <span class="sig-badge">Barber</span>
+          <img src="pic.jpg" alt="Barber service" loading="lazy">
+        </div>
+        <div class="sig-body">
+          <h3 class="sig-title">Precision Cuts</h3>
+          <p class="sig-desc">Clean fades, sharp shape-ups, beard detailing—finished with intent.</p>
+          <div class="sig-meta">
+            <span>Deposit <strong>£10</strong></span>
+            <a class="sig-cta" href="login.html">Book</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 </main>
-<section class="curated-section">
-  <h2 class="curated-title">Styles Curated by the House</h2>
 
-  <!-- EMPTY: populated by Firebase only -->
-  <div class="curated-grid"></div>
-</section>
-<section class="shop-hero reveal reveal-slow" id="shopHero">
-  <div class="shop-overlay">
-    <span class="shop-label">Angels Hair Mall</span>
-    <h2 id="shopTitle"></h2>
-    <a id="shopButton" class="btn btn-light"></a>
-  </div>
-</section>
-<section class="services-section" id="servicesSection">
-
-
-  <h2 class="services-title reveal">
-    ANGELS HAIR MALL SERVICES
-  </h2>
-
-<div class="services-grid" id="servicesGrid">
-
-
-    <!-- SERVICE 1 -->
-    <div class="service-card reveal">
-
-      <div class="service-media">
-        <video autoplay muted loop playsinline preload="metadata">
-          <source src="Video .mov" type="video/mp4">
-        </video>
-      </div>
-
-      <h3>COLLECT IN STORE</h3>
-
-      <p>
-        Order your styles online and collect them from your preferred
-        Angels Hair Mall location.
-      </p>
-
-      <a href="login.html">Discover how</a>
-
-    </div>
-
-
-    <!-- SERVICE 2 -->
-    <div class="service-card reveal">
-
-      <div class="service-media">
-        <video autoplay muted loop playsinline preload="metadata">
-          <source src="video 1.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <h3>PERSONALISATION</h3>
-
-      <p>
-        Bespoke hair services designed to reflect your individuality,
-        crafted with precision and care.
-      </p>
-
-      <a href="login.html">Explore all the options</a>
-
-    </div>
-
-
-    <!-- SERVICE 3 -->
-    <div class="service-card reveal">
-
-      <div class="service-media">
-        <video autoplay muted loop playsinline preload="metadata">
-          <source src="Video 2.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <h3>BOOK AN APPOINTMENT</h3>
-
-      <p>
-        Enjoy priority access and one-to-one guidance with our senior
-        stylists.
-      </p>
-
-      <a href="login.html">Book an in-store appointment</a>
-
-    </div>
-
-  </div>
-
-</section>
-
-<style>
-  
-/* ================= GUCCI-STYLE FOOTER ================= */
-
-.footer {
-  background: #000;
-  color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  position: relative;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-/* ---------- NEWSLETTER INTRO (CENTERED) ---------- */
-.footer-intro {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 140px 40px 0;
-  text-align: center;
-}
-
-.footer-intro p {
-  font-size: 22px;
-  line-height: 1.5;
-  font-weight: 300;
-  opacity: 0.85;
-}
-
-.subscribe-toggle {
-  margin-top: 28px;
-  font-size: 13px;
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-
-/* ---------- NEWSLETTER INPUT (HIDDEN INITIALLY) ---------- */
-.newsletter {
-  max-width: 400px;
-  margin: 40px auto 0;
-  display: none;
-}
-
-.newsletter input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #fff;
-  padding: 12px 0;
-  color: #fff;
-  font-size: 14px;
-}
-
-.newsletter input::placeholder {
-  color: #aaa;
-}
-
-/* ---------- LINKS SECTION ---------- */
-.footer-links {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 140px 40px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 90px;
-}
-
-.footer-col h6 {
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-weight: 400;
-  margin-bottom: 24px;
-}
-
-.footer-col a {
-  display: block;
-  font-size: 14px;
-  color: #fff;
-  text-decoration: none;
-  margin-bottom: 14px;
-  opacity: 0.9;
-}
-
-.footer-col a:hover {
-  text-decoration: underline;
-}
-
-/* ---------- GIANT BRAND WORDMARK (ABSOLUTE CENTER) ---------- */
-.footer-brand {
-  position: absolute;
-  bottom: 2vw;        /* less overflow */
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Georgia, serif;
-  font-size: 6vw;     /* REDUCED size */
-  letter-spacing: 6px;
-  line-height: 0.85;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* ---------- MOBILE ---------- */
-@media (max-width: 900px) {
-  .footer-links {
-    grid-template-columns: 1fr;
-    gap: 48px;
-  }
-
-  .footer-brand {
-    font-size: 30vw;
-    bottom: -12vw;
-  }
-}
-</style>
-
+<!-- ===== FOOTER (your luxury footer kept) ===== -->
 <footer class="footer">
-
-  <!-- TOP MESSAGE -->
   <div class="footer-intro">
     <p>
       Get exclusive updates on new styles, personalised communication,
@@ -665,24 +794,18 @@ footer {
     </div>
 
     <div class="newsletter" id="newsletter">
-
-  <label for="newsletter-email" class="visually-hidden">
-    Email address
-  </label>
-
-  <input
-    type="email"
-    id="newsletter-email"
-    name="newsletter_email"
-    placeholder="E-mail"
-    autocomplete="email"
-    required
-  >
-
-</div>
+      <label for="newsletter-email" class="visually-hidden">Email address</label>
+      <input
+        type="email"
+        id="newsletter-email"
+        name="newsletter_email"
+        placeholder="E-mail"
+        autocomplete="email"
+        required
+      >
+    </div>
   </div>
 
-  <!-- LINKS -->
   <div class="footer-links">
     <div class="footer-col">
       <h6>May We Help You?</h6>
@@ -703,42 +826,30 @@ footer {
     <div class="footer-col"></div>
   </div>
 
-  <!-- GIANT BRAND -->
-<div class="footer-brand">
-  ANGELS HAIR MALL<span style="font-size:0.6em; vertical-align:super;">™</span>
-</div>
-
-
+  <div class="footer-brand">
+    ANGELS HAIR MALL<span style="font-size:0.6em; vertical-align:super;">™</span>
+  </div>
 </footer>
 
 <script>
-function toggleNewsletter() {
-  const el = document.getElementById('newsletter');
-  el.style.display = el.style.display === 'block' ? 'none' : 'block';
-}
-</script>
-</footer>
-<script>
-/* ================= SCROLL REVEAL ================= */
-
-const revealElements = document.querySelectorAll('.reveal');
-
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('reveal-visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  {
-    threshold: 0.15
+  // Newsletter toggle (kept simple + reliable)
+  function toggleNewsletter(){
+    const el = document.getElementById("newsletter");
+    if (!el) return;
+    el.style.display = (el.style.display === "block") ? "none" : "block";
   }
-);
 
-revealElements.forEach(el => revealObserver.observe(el));
+  // Reveal animation (optional, doesn’t break anything if removed)
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if (e.isIntersecting) e.target.classList.add("reveal-visible");
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 </script>
+
+
 <script>
 /* ================= SMOOTH SCROLL ================= */
 
