@@ -1798,9 +1798,15 @@ async function loadAppointments(){
       appointmentsList.innerHTML = `<div class="px">No appointments yet.</div>`;
       return;
     }
+const now = Date.now();
 
-    const all = Object.entries(snap.val() || {}).map(([id, b])=>({ id, ...b }));
-    all.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+const all = Object.entries(snap.val() || {})
+  .map(([id, b]) => ({ id, ...b }))
+  .filter(b => {
+    const st = (b.status || "").toLowerCase();
+    if (st === "awaiting_payment" && b.expiresAt && now > b.expiresAt) return false;
+    return true;
+  });
 
     appointmentsList.innerHTML = all.map(b=>{
      const sty = getPublicProfile(b.stylistId);
@@ -1930,7 +1936,7 @@ payDepositBtn.addEventListener("click", async () => {
       remaining: Math.max(0, price - 10),
     };
 
-    sessionStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
+    localStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
 
     // Optional UX: lock confirm until we come back with session_id
     setConfirmLocked("Redirecting to payment…");
@@ -1986,7 +1992,7 @@ async function bootPaymentVerification(){
     setConfirmUnlocked();
 
     // ✅ Restore summary UI AFTER bootstrap has loaded stylistsIndex/serviceOptions
-    const raw = sessionStorage.getItem("pendingBookingDetails");
+   const raw = localStorage.getItem("pendingBookingDetails");
     if (raw) {
       const d = JSON.parse(raw);
 
@@ -2015,7 +2021,7 @@ confirmBookingBtn.addEventListener("click", async () => {
       throw new Error("Please pay the £10 deposit first.");
     }
 
-    const raw = sessionStorage.getItem("pendingBookingDetails");
+    const raw = localStorage.getItem("pendingBookingDetails");
     if (!raw) throw new Error("Missing booking details. Please reselect and try again.");
 
     const bookingDetails = JSON.parse(raw);
@@ -2034,7 +2040,7 @@ confirmBookingBtn.addEventListener("click", async () => {
     });
 
     toast(payToast, "✅ Booking confirmed!");
-    sessionStorage.removeItem("pendingBookingDetails");
+    localStorage.removeItem("pendingBookingDetails");
 
     // remove session_id from url
     const url = new URL(window.location.href);
@@ -2075,4 +2081,3 @@ We can update your rules once you confirm which path you prefer.
 -->
 </body>
 </html>
-
