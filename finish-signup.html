@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finish Signup — Angels Hair Mall</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:520px;margin:60px auto;padding:0 20px}
+    h1{font-size:26px;margin-bottom:10px}
+    p{color:#444;line-height:1.6;margin-bottom:18px}
+    input, select{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;margin:10px 0}
+    button{width:100%;padding:12px;border:none;border-radius:6px;background:#000;color:#fff;cursor:pointer;margin-top:10px}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .row{display:flex;gap:10px}
+    .row select{width:140px}
+    .row input{flex:1}
+    .msg{margin-top:12px;color:#b00020}
+    .ok{color:#0a7a0a}
+    a{color:#000}
+    @media (max-width:520px){.row{flex-direction:column}.row select{width:100%}}
+  </style>
+</head>
+<body>
+  <h1>Finish signup</h1>
+  <p>To protect customers, we need to verify your phone number by text.</p>
+
+  <div class="row">
+    <select id="countryCode">
+      <option value="+44">🇬🇧 UK (+44)</option>
+      <option value="+1">🇺🇸 USA (+1)</option>
+      <option value="+234">🇳🇬 Nigeria (+234)</option>
+      <option value="+33">🇫🇷 France (+33)</option>
+      <option value="+49">🇩🇪 Germany (+49)</option>
+      <option value="+971">🇦🇪 UAE (+971)</option>
+    </select>
+    <input id="phoneLocal" placeholder="e.g. 7912345678" inputmode="numeric"/>
+  </div>
+
+  <button id="sendBtn">Send code</button>
+
+  <input id="code" placeholder="Enter SMS code" inputmode="numeric" style="display:none"/>
+  <button id="verifyBtn" style="display:none">Verify</button>
+
+  <div id="recaptcha-container"></div>
+  <div id="msg" class="msg"></div>
+
+  <p style="margin-top:18px;"><a href="login.html">Back to login</a></p>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    PhoneAuthProvider,
+    linkWithCredential
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+    authDomain: "angelshairmall.firebaseapp.com",
+    databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+    projectId: "angelshairmall",
+    messagingSenderId: "374317477500",
+    appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const sendBtn = document.getElementById("sendBtn");
+  const verifyBtn = document.getElementById("verifyBtn");
+  const codeInput = document.getElementById("code");
+  const msg = document.getElementById("msg");
+
+  const countryCodeEl = document.getElementById("countryCode");
+  const phoneLocalEl = document.getElementById("phoneLocal");
+
+  let confirmationResult = null;
+
+  function setMsg(text, ok=false){
+    msg.textContent = text;
+    msg.className = ok ? "msg ok" : "msg";
+  }
+
+  function normalizeLocalDigits(input){
+    let d = String(input || "").replace(/\D/g,"");
+    d = d.replace(/^0+/, "");
+    return d;
+  }
+
+  function toE164(cc, local){
+    if (!cc.startsWith("+")) return null;
+    if (!/^\d+$/.test(local)) return null;
+    const full = `${cc}${local}`;
+    if (!/^\+\d{8,15}$/.test(full)) return null;
+    return full;
+  }
+
+  const recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+  await recaptchaVerifier.render();
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "login.html";
+  });
+
+  sendBtn.addEventListener("click", async () => {
+    setMsg("");
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Sending…";
+
+    try{
+      const cc = countryCodeEl.value;
+      const local = normalizeLocalDigits(phoneLocalEl.value.trim());
+      const fullPhone = toE164(cc, local);
+      if (!fullPhone) throw new Error("Enter a valid phone number.");
+
+      confirmationResult = await signInWithPhoneNumber(auth, fullPhone, recaptchaVerifier);
+
+      codeInput.style.display = "block";
+      verifyBtn.style.display = "block";
+      setMsg("Code sent. Enter it to verify.", true);
+    } catch(e){
+      setMsg(e.message || "Could not send code.");
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send code";
+    }
+  });
+
+  verifyBtn.addEventListener("click", async () => {
+    setMsg("");
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "Verifying…";
+
+    try{
+      const user = auth.currentUser;
+      if (!user) throw new Error("Not signed in.");
+
+      if (!confirmationResult?.verificationId) throw new Error("Please send a code first.");
+      const code = codeInput.value.trim();
+      if (!code) throw new Error("Enter the SMS code.");
+
+      const phoneCredential = PhoneAuthProvider.credential(confirmationResult.verificationId, code);
+      await linkWithCredential(user, phoneCredential);
+
+      // Create/update user profile
+      const uid = user.uid;
+      const userRef = ref(db, `users/${uid}`);
+      const snap = await get(userRef);
+
+      const fallbackName = sessionStorage.getItem("pendingName") || (user.displayName || "");
+      const fallbackRole = sessionStorage.getItem("pendingRole") || "client";
+      const fallbackProfession = sessionStorage.getItem("pendingProfession") || null;
+
+      const cc = countryCodeEl.value;
+      const local = normalizeLocalDigits(phoneLocalEl.value.trim());
+      const fullPhone = toE164(cc, local);
+
+      if (!snap.exists()){
+        await set(userRef, {
+          uid,
+          email: user.email,
+          role: fallbackRole,
+          name: fallbackName || "Customer",
+          phone: fullPhone,
+          profileComplete: true,
+          phoneVerified: true,
+          profession: fallbackRole === "stylist" ? (fallbackProfession || "Stylist") : null,
+          createdAt: Date.now()
+        });
+      } else {
+        await update(userRef, { phone: fullPhone, phoneVerified: true, profileComplete: true });
+      }
+
+      // Route
+      const roleSnap = await get(ref(db, `users/${uid}/role`));
+      const role = roleSnap.exists() ? roleSnap.val() : "client";
+      window.location.href = role === "stylist" ? "stylist-dashboard.html" : "booking.html";
+
+    } catch(e){
+      setMsg(e.message || "Could not verify.");
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = "Verify";
+    }
+  });
+</script>
+</body>
+</html>
