@@ -780,12 +780,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 </script>
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
-
 const firebaseConfig = {
   apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
   authDomain: "angelshairmall.firebaseapp.com",
@@ -798,111 +796,105 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- DEFAULT CMS ---------------- */
-/* SITE CAN NEVER BREAK NOW */
+/* ---------------- HERO LOADER (NO FALLBACKS) ---------------- */
+async function loadHero() {
+  const snap = await get(ref(db, "homepage/hero"));
 
-const DEFAULT = {
-
-  hero:{
-    title:"Luxury Hair,<br>Redefined",
-    subtitle:"An editorial hairstyling experience inspired by high fashion.",
-    image:"al.jpg",
-    buttonText:"Book Appointment",
-    buttonLink:"login.html",
-    enabled:true
-  }
-
-};
-
-/* ---------------- HERO LOADER ---------------- */
-
-async function loadHero(){
-
-  const snap = await get(ref(db,"homepage/hero"));
-
-  // merge defaults + db
-  const hero = {
-    ...DEFAULT.hero,
-    ...(snap.exists() ? snap.val() : {})
-  };
-
-  if(!hero.enabled){
-    document.querySelector(".hero").style.display="none";
+  // If no CMS data, hide section (no template/default content)
+  if (!snap.exists()) {
+    const heroEl = document.querySelector(".hero");
+    if (heroEl) heroEl.style.display = "none";
     return;
   }
 
-  document.getElementById("heroTitle").innerHTML = hero.title;
-  document.getElementById("heroSubtitle").textContent = hero.subtitle;
-  document.getElementById("heroImage").src = hero.image;
-  document.getElementById("heroButton").textContent = hero.buttonText;
-  document.getElementById("heroButton").href = hero.buttonLink;
+  const hero = snap.val();
 
+  if (hero?.enabled === false) {
+    const heroEl = document.querySelector(".hero");
+    if (heroEl) heroEl.style.display = "none";
+    return;
+  }
+
+  // Only set what exists (no defaults)
+  if (hero?.title != null) document.getElementById("heroTitle").innerHTML = hero.title;
+  if (hero?.subtitle != null) document.getElementById("heroSubtitle").textContent = hero.subtitle;
+  if (hero?.image != null) document.getElementById("heroImage").src = hero.image;
+
+  if (hero?.buttonText != null) document.getElementById("heroButton").textContent = hero.buttonText;
+  if (hero?.buttonLink != null) document.getElementById("heroButton").href = hero.buttonLink;
 }
 
-/* ---------------- CURATED LOADER ---------------- */
+/* ---------------- CURATED LOADER (NO FALLBACKS) ---------------- */
+async function loadCurated() {
+  const snap = await get(ref(db, "homepage/curated"));
 
-async function loadCurated(){
-
-  const snap = await get(ref(db,"homepage/curated"));
-
-  if(!snap.exists()) return; // template stays
+  // If no CMS data, hide section (no template items)
+  if (!snap.exists()) {
+    const curatedEl = document.querySelector(".curated-section");
+    if (curatedEl) curatedEl.style.display = "none";
+    return;
+  }
 
   const data = snap.val();
 
-  if(data.enabled === false){
-    document.querySelector(".curated-section").style.display="none";
+  if (data?.enabled === false) {
+    const curatedEl = document.querySelector(".curated-section");
+    if (curatedEl) curatedEl.style.display = "none";
     return;
   }
 
-  if(!data.items) return;
+  if (!Array.isArray(data?.items) || data.items.length === 0) {
+    const curatedEl = document.querySelector(".curated-section");
+    if (curatedEl) curatedEl.style.display = "none";
+    return;
+  }
 
   const grid = document.querySelector(".curated-grid");
+  if (!grid) return;
 
-  grid.innerHTML = data.items.map(item=>`
+  grid.innerHTML = data.items.map(item => `
     <div class="curated-item">
       <div class="curated-media">
-        <img src="${item.image}">
+        <img src="${item.image || ""}" alt="${item.title || ""}">
       </div>
-      <p>${item.title}</p>
+      <p>${item.title || ""}</p>
     </div>
   `).join("");
-
 }
 
-/* ---------------- SERVICES TOGGLE (future editable) ---------------- */
+/* ---------------- SHOP HERO LOADER (NO FALLBACKS) ---------------- */
+async function loadShopHero() {
+  const snap = await get(ref(db, "homepage/shopHero"));
 
-/* ---------------- SERVICES LOADER ---------------- */
-
-
-async function loadShopHero(){
-
-  const snap = await get(ref(db,"homepage/shopHero"));
-  if(!snap.exists()) return;
+  // If no CMS data, hide section
+  if (!snap.exists()) {
+    const shopEl = document.getElementById("shopHero");
+    if (shopEl) shopEl.style.display = "none";
+    return;
+  }
 
   const shop = snap.val();
 
-  if(shop.enabled === false){
-    document.getElementById("shopHero").style.display="none";
+  if (shop?.enabled === false) {
+    const shopEl = document.getElementById("shopHero");
+    if (shopEl) shopEl.style.display = "none";
     return;
   }
 
-  document.getElementById("shopHero").style.backgroundImage =
-    `url(${shop.image})`;
-
-  document.getElementById("shopTitle").textContent = shop.title;
-  document.getElementById("shopButton").textContent = shop.button;
-  document.getElementById("shopButton").href = shop.link;
+  if (shop?.image != null) {
+    document.getElementById("shopHero").style.backgroundImage = `url(${shop.image})`;
+  }
+  if (shop?.title != null) document.getElementById("shopTitle").textContent = shop.title;
+  if (shop?.button != null) document.getElementById("shopButton").textContent = shop.button;
+  if (shop?.link != null) document.getElementById("shopButton").href = shop.link;
 }
 
 /* ---------------- LOAD EVERYTHING ---------------- */
-
 await Promise.all([
   loadHero(),
   loadCurated(),
   loadShopHero()
 ]);
-
-
 </script>
 
 </body>
