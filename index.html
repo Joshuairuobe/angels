@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo 1.JPG">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Angels Hair Mall",
+  "url": "https://angelshairmall.co",
+  "logo": "https://angelshairmall.co/logo1.JPG"
+}
+</script>
+
+  <meta name="google-site-verification" content="4-xuI5j27HFZDSrCwUsWpwfOxTRbWOTC8WXFyMF9s2o" />
+<meta charset="UTF-8">
+<title>Angels Hair Mall | Afro Hair, Braids, Locs & Barbers in UK</title>
+
+<meta name="description" content="Book professional afro hair, braids, locs, barber cuts, lashes and beauty services at Angels Hair Mall. £10 deposit secures your appointment." />
+
+<meta name="keywords" content="afro hair salon, braids near me, dreadlocks UK, barber shop, weave install, wig install, loc retwist, hair salon UK" />
+
+<meta name="author" content="Angels Hair Mall" />
+
+<meta property="og:title" content="Angels Hair Mall" />
+<meta property="og:description" content="Premium hair and beauty services. Book online today." />
+<meta property="og:type" content="website" />
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+<meta name="robots" content="index, follow">
+
+<title>Angels Hair Mall</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: #000;
+  padding-top: 90px; /* FIX: prevents overlap with fixed header */
+}
+a { text-decoration: none; color: inherit; }
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  z-index: 1000;
+}
+
+.nav {
+  max-width: 1400px;
+  margin: auto;
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;   /* 🔑 FIX */
+}
+
+.logo {
+  font-family: Georgia, serif;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;   /* 🔑 FIX */
+}
+
+.logo-mark {
+  height: 16px;           /* very subtle */
+  width: auto;
+  display: block;
+}
+
+
+.nav a {
+  margin-left: 30px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+main { margin-top: 90px; }
+section {
+  max-width: 1400px;
+  margin: auto;
+  padding: 120px 40px;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  font-weight: 400;
+}
+p { color: #777; max-width: 420px; }
+.btn {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 14px 36px;
+  border: 1px solid #000;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.btn:hover {
+  background: #000;
+  color: #fff;
+}
+footer {
+  border-top: 1px solid #eee;
+  padding: 40px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #777;
+}
+/* ================= CURATED GRID SECTION ================= */
+
+.curated-section {
+  padding: 120px 40px;
+  background: #fff;
+  text-align: center;
+}
+
+.curated-title {
+  font-size: 28px;
+  letter-spacing: 2px;
+  font-weight: 400;
+  margin-bottom: 80px;
+  text-transform: uppercase;
+}
+
+/* GRID */
+.curated-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+
+
+
+.curated-item p {
+  margin-top: 20px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .curated-section {
+    padding: 80px 20px;
+  }
+
+  .curated-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .curated-title {
+    font-size: 22px;
+    margin-bottom: 48px;
+  }
+}
+/* ================= CURATED IMAGE FIX ================= */
+
+/* Card wrapper */
+.curated-item {
+  text-align: center;
+}
+
+/* Fixed-ratio media container */
+.curated-media {
+  aspect-ratio: 1 / 1;   /* same as services */
+  overflow: hidden;
+}
+
+/* Cropped image */
+.curated-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s ease;
+}
+
+/* Hover */
+.curated-item:hover img {
+  transform: scale(1.03);
+}
+/* ================= SHOP HERO ================= */
+
+.shop-hero {
+  position: relative;
+  height: 80vh;
+  background: url("images/shop-hero.jpg") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-overlay {
+  text-align: center;
+  color: #fff;
+}
+
+.shop-label {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  border: 1px solid #fff;
+  padding: 6px 14px;
+  margin-bottom: 24px;
+}
+
+.shop-overlay h2 {
+  font-family: Georgia, serif;
+  font-size: 46px;
+  font-weight: 400;
+}
+
+.btn-light {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.btn-light:hover {
+  background: #fff;
+  color: #000;
+}
+/* ================= SERVICES ================= */
+
+.services-section {
+  padding: 160px 40px;
+  text-align: center;
+}
+
+.services-title {
+  font-size: 28px;
+  letter-spacing: 2px;
+  font-weight: 400;
+  margin-bottom: 120px;
+}
+
+/* GRID */
+.services-grid {
+  max-width: 1400px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 60px;
+}
+
+/* CARD */
+.service-card h3 {
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.service-card p {
+  font-size: 14px;
+  max-width: 320px;
+  margin: 0 auto 24px;
+}
+
+.service-card a {
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+/* VIDEO */
+.service-media {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.service-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 80px;
+  }
+
+  .services-title {
+    margin-bottom: 80px;
+  }
+}
+/* ================= MOTION SYSTEM ================= */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  will-change: opacity, transform;
+}
+
+.reveal.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slower, more editorial variant */
+.reveal-slow {
+  transition-duration: 1.3s;
+}
+.service-card {
+  transition-delay: var(--delay);
+}
+.service-card img,
+.curated-item img {
+  transition: transform 0.8s ease;
+}
+
+.service-card:hover img,
+.curated-item:hover img {
+  transform: scale(1.03);
+}
+.btn {
+  transition: background 0.4s ease, color 0.4s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* ================= HERO WITH IMAGE ================= */
+
+.hero {
+  max-width: 1400px;
+  margin: auto;
+  padding: 140px 40px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-content h1 {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  font-weight: 400;
+}
+
+.hero-content p {
+  margin-top: 24px;
+  max-width: 420px;
+}
+
+.hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-image {
+    order: -1;
+  }
+}
+.shop-hero {
+  position: relative;
+  height: 80vh;
+  background-image: url("pic.jpg");
+  background-size: cover;
+  background-position: center;
+}
+.service-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition: transform .8s ease;
+}
+
+.service-card:hover video{
+  transform: scale(1.05);
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <img src="logo 1 .JPG" alt="" class="logo-mark">
+      <span>ANGELS HAIR MALL</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="services.html">Services</a>
+      <a href="login.html">Booking</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="blog.html">Blog</a>
+    </nav>
+  </div>
+</header>
+
+
+<main>
+  <section class="hero">
+  <div class="hero-content">
+   <h1 id="heroTitle"><br></h1>
+
+<p id="heroSubtitle">
+
+</p>
+
+<a id="heroButton"
+   href="login.html"
+   class="btn">
+   Book Appointment
+</a>
+
+  </div>
+
+  <div class="hero-image reveal reveal-slow">
+    <img id="heroImage"
+     src=""
+     alt="Luxury hairstyling editorial">
+
+  </div>
+</section>
+</main>
+<section class="curated-section">
+  <h2 class="curated-title">Styles Curated by the House </h2>
+
+  <div class="curated-grid">
+
+   <div class="curated-item">
+  <div class="curated-media">
+    <img src="sign.jpg" alt="Signature Styling">
+  </div>
+  <p>Signature Styling</p>
+</div>
+
+<div class="curated-item">
+  <div class="curated-media">
+    <img src="lux.jpg" alt="Luxury Hair Treatments">
+  </div>
+  <p>Luxury Hair Treatments</p>
+</div>
+
+<div class="curated-item">
+  <div class="curated-media">
+    <img src="bridal.jpg" alt="Bridal Hair">
+  </div>
+  <p>Bridal & Event Hair</p>
+</div>
+
+<div class="curated-item">
+  <div class="curated-media">
+    <img src="g.jpg" alt="Men’s Grooming">
+  </div>
+  <p>Men’s Grooming</p>
+</div>
+
+  </div>
+</section>
+<section class="shop-hero reveal reveal-slow" id="shopHero">
+  <div class="shop-overlay">
+    <span class="shop-label">Angels Hair Mall</span>
+    <h2 id="shopTitle"></h2>
+    <a id="shopButton" class="btn btn-light"></a>
+  </div>
+</section>
+<section class="services-section" id="servicesSection">
+
+
+  <h2 class="services-title reveal">
+    ANGELS HAIR MALL SERVICES
+  </h2>
+
+<div class="services-grid" id="servicesGrid">
+
+
+    <!-- SERVICE 1 -->
+    <div class="service-card reveal">
+
+      <div class="service-media">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="Video .mov" type="video/mp4">
+        </video>
+      </div>
+
+      <h3>COLLECT IN STORE</h3>
+
+      <p>
+        Order your styles online and collect them from your preferred
+        Angels Hair Mall location.
+      </p>
+
+      <a href="login.html">Discover how</a>
+
+    </div>
+
+
+    <!-- SERVICE 2 -->
+    <div class="service-card reveal">
+
+      <div class="service-media">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="video 1.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <h3>PERSONALISATION</h3>
+
+      <p>
+        Bespoke hair services designed to reflect your individuality,
+        crafted with precision and care.
+      </p>
+
+      <a href="login.html">Explore all the options</a>
+
+    </div>
+
+
+    <!-- SERVICE 3 -->
+    <div class="service-card reveal">
+
+      <div class="service-media">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="Video 2.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <h3>BOOK AN APPOINTMENT</h3>
+
+      <p>
+        Enjoy priority access and one-to-one guidance with our senior
+        stylists.
+      </p>
+
+      <a href="login.html">Book an in-store appointment</a>
+
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+  
+/* ================= GUCCI-STYLE FOOTER ================= */
+
+.footer {
+  background: #000;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ---------- NEWSLETTER INTRO (CENTERED) ---------- */
+.footer-intro {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 140px 40px 0;
+  text-align: center;
+}
+
+.footer-intro p {
+  font-size: 22px;
+  line-height: 1.5;
+  font-weight: 300;
+  opacity: 0.85;
+}
+
+.subscribe-toggle {
+  margin-top: 28px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* ---------- NEWSLETTER INPUT (HIDDEN INITIALLY) ---------- */
+.newsletter {
+  max-width: 400px;
+  margin: 40px auto 0;
+  display: none;
+}
+
+.newsletter input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #fff;
+  padding: 12px 0;
+  color: #fff;
+  font-size: 14px;
+}
+
+.newsletter input::placeholder {
+  color: #aaa;
+}
+
+/* ---------- LINKS SECTION ---------- */
+.footer-links {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 140px 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 90px;
+}
+
+.footer-col h6 {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-bottom: 24px;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 14px;
+  opacity: 0.9;
+}
+
+.footer-col a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- GIANT BRAND WORDMARK (ABSOLUTE CENTER) ---------- */
+.footer-brand {
+  position: absolute;
+  bottom: 2vw;        /* less overflow */
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Georgia, serif;
+  font-size: 6vw;     /* REDUCED size */
+  letter-spacing: 6px;
+  line-height: 0.85;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 900px) {
+  .footer-links {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .footer-brand {
+    font-size: 30vw;
+    bottom: -12vw;
+  }
+}
+</style>
+
+<footer class="footer">
+
+  <!-- TOP MESSAGE -->
+  <div class="footer-intro">
+    <p>
+      Get exclusive updates on new styles, personalised communication,
+      and Angels Hair Mall’s latest haircare news.
+    </p>
+
+    <div class="subscribe-toggle" onclick="toggleNewsletter()">
+      + Subscribe
+    </div>
+
+    <div class="newsletter" id="newsletter">
+
+  <label for="newsletter-email" class="visually-hidden">
+    Email address
+  </label>
+
+  <input
+    type="email"
+    id="newsletter-email"
+    name="newsletter_email"
+    placeholder="E-mail"
+    autocomplete="email"
+    required
+  >
+
+</div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="footer-links">
+    <div class="footer-col">
+      <h6>May We Help You?</h6>
+      <a href="login.html">Booking Appointment</a>
+    </div>
+
+    <div class="footer-col">
+      <h6>The Company</h6>
+      <a href="terms.html">Terms Policy</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+
+    <div class="footer-col">
+      <h6>Journal</h6>
+      <a href="blog.html">Haircare</a>
+    </div>
+
+    <div class="footer-col"></div>
+  </div>
+
+  <!-- GIANT BRAND -->
+<div class="footer-brand">
+  ANGELS HAIR MALL<span style="font-size:0.6em; vertical-align:super;">™</span>
+</div>
+
+
+</footer>
+
+<script>
+function toggleNewsletter() {
+  const el = document.getElementById('newsletter');
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+</footer>
+<script>
+/* ================= SCROLL REVEAL ================= */
+
+const revealElements = document.querySelectorAll('.reveal');
+
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    threshold: 0.15
+  }
+);
+
+revealElements.forEach(el => revealObserver.observe(el));
+</script>
+<script>
+/* ================= SMOOTH SCROLL ================= */
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(anchor.getAttribute('href'))
+      ?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+/* ---------------- FIREBASE ---------------- */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+  messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ---------------- DEFAULT CMS ---------------- */
+/* SITE CAN NEVER BREAK NOW */
+
+const DEFAULT = {
+
+  hero:{
+    title:"Luxury Hair,<br>Redefined",
+    subtitle:"An editorial hairstyling experience inspired by high fashion.",
+    image:"al.jpg",
+    buttonText:"Book Appointment",
+    buttonLink:"login.html",
+    enabled:true
+  }
+
+};
+
+/* ---------------- HERO LOADER ---------------- */
+
+async function loadHero(){
+
+  const snap = await get(ref(db,"homepage/hero"));
+
+  // merge defaults + db
+  const hero = {
+    ...DEFAULT.hero,
+    ...(snap.exists() ? snap.val() : {})
+  };
+
+  if(!hero.enabled){
+    document.querySelector(".hero").style.display="none";
+    return;
+  }
+
+  document.getElementById("heroTitle").innerHTML = hero.title;
+  document.getElementById("heroSubtitle").textContent = hero.subtitle;
+  document.getElementById("heroImage").src = hero.image;
+  document.getElementById("heroButton").textContent = hero.buttonText;
+  document.getElementById("heroButton").href = hero.buttonLink;
+
+}
+
+/* ---------------- CURATED LOADER ---------------- */
+
+async function loadCurated(){
+
+  const snap = await get(ref(db,"homepage/curated"));
+
+  if(!snap.exists()) return; // template stays
+
+  const data = snap.val();
+
+  if(data.enabled === false){
+    document.querySelector(".curated-section").style.display="none";
+    return;
+  }
+
+  if(!data.items) return;
+
+  const grid = document.querySelector(".curated-grid");
+
+  grid.innerHTML = data.items.map(item=>`
+    <div class="curated-item">
+      <div class="curated-media">
+        <img src="${item.image}">
+      </div>
+      <p>${item.title}</p>
+    </div>
+  `).join("");
+
+}
+
+/* ---------------- SERVICES TOGGLE (future editable) ---------------- */
+
+/* ---------------- SERVICES LOADER ---------------- */
+
+
+async function loadShopHero(){
+
+  const snap = await get(ref(db,"homepage/shopHero"));
+  if(!snap.exists()) return;
+
+  const shop = snap.val();
+
+  if(shop.enabled === false){
+    document.getElementById("shopHero").style.display="none";
+    return;
+  }
+
+  document.getElementById("shopHero").style.backgroundImage =
+    `url(${shop.image})`;
+
+  document.getElementById("shopTitle").textContent = shop.title;
+  document.getElementById("shopButton").textContent = shop.button;
+  document.getElementById("shopButton").href = shop.link;
+}
+
+/* ---------------- LOAD EVERYTHING ---------------- */
+
+await Promise.all([
+  loadHero(),
+  loadCurated(),
+  loadShopHero()
+]);
+
+
+</script>
+
+</body>
+</html>
