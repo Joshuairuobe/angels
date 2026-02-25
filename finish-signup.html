@@ -132,61 +132,97 @@
   });
 
   verifyBtn.addEventListener("click", async () => {
-    setMsg("");
-    verifyBtn.disabled = true;
-    verifyBtn.textContent = "Verifying…";
+  setMsg("");
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = "Verifying…";
 
-    try{
-      const user = auth.currentUser;
-      if (!user) throw new Error("Not signed in.");
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not signed in.");
 
-      if (!confirmationResult?.verificationId) throw new Error("Please send a code first.");
-      const code = codeInput.value.trim();
-      if (!code) throw new Error("Enter the SMS code.");
+    if (!confirmationResult?.verificationId)
+      throw new Error("Please send a code first.");
 
-      const phoneCredential = PhoneAuthProvider.credential(confirmationResult.verificationId, code);
+    const code = codeInput.value.trim();
+    if (!code) throw new Error("Enter the SMS code.");
+
+    const phoneCredential = PhoneAuthProvider.credential(
+      confirmationResult.verificationId,
+      code
+    );
+
+    // ⭐ IMPORTANT FIX:
+    // If already linked, DON'T crash
+    try {
       await linkWithCredential(user, phoneCredential);
-
-      // Create/update user profile
-      const uid = user.uid;
-      const userRef = ref(db, `users/${uid}`);
-      const snap = await get(userRef);
-
-      const fallbackName = sessionStorage.getItem("pendingName") || (user.displayName || "");
-      const fallbackRole = sessionStorage.getItem("pendingRole") || "client";
-      const fallbackProfession = sessionStorage.getItem("pendingProfession") || null;
-
-      const cc = countryCodeEl.value;
-      const local = normalizeLocalDigits(phoneLocalEl.value.trim());
-      const fullPhone = toE164(cc, local);
-
-      if (!snap.exists()){
-        await set(userRef, {
-          uid,
-          email: user.email,
-          role: fallbackRole,
-          name: fallbackName || "Customer",
-          phone: fullPhone,
-          profileComplete: true,
-          phoneVerified: true,
-          profession: fallbackRole === "stylist" ? (fallbackProfession || "Stylist") : null,
-          createdAt: Date.now()
-        });
-      } else {
-        await update(userRef, { phone: fullPhone, phoneVerified: true, profileComplete: true });
+    } catch (err) {
+      if (err.code !== "auth/credential-already-in-use" &&
+          err.code !== "auth/account-exists-with-different-credential") {
+        throw err;
       }
-
-      // Route
-      const roleSnap = await get(ref(db, `users/${uid}/role`));
-      const role = roleSnap.exists() ? roleSnap.val() : "client";
-      window.location.href = role === "stylist" ? "stylist-dashboard.html" : "booking.html";
-
-    } catch(e){
-      setMsg(e.message || "Could not verify.");
-      verifyBtn.disabled = false;
-      verifyBtn.textContent = "Verify";
+      // Already linked — continue safely
+      console.log("Phone already linked, continuing...");
     }
-  });
+
+    // ----- UPDATE DATABASE (ALWAYS RUN) -----
+    const uid = user.uid;
+    const userRef = ref(db, `users/${uid}`);
+    const snap = await get(userRef);
+
+    const fallbackName =
+      sessionStorage.getItem("pendingName") ||
+      (user.displayName || "");
+
+    const fallbackRole =
+      sessionStorage.getItem("pendingRole") || "client";
+
+    const fallbackProfession =
+      sessionStorage.getItem("pendingProfession") || null;
+
+    const cc = countryCodeEl.value;
+    const local = normalizeLocalDigits(phoneLocalEl.value.trim());
+    const fullPhone = toE164(cc, local);
+
+    if (!snap.exists()) {
+      await set(userRef, {
+        uid,
+        email: user.email,
+        role: fallbackRole,
+        name: fallbackName || "Customer",
+        phone: fullPhone,
+        profileComplete: true,
+        phoneVerified: true,
+        profession:
+          fallbackRole === "stylist"
+            ? (fallbackProfession || "Stylist")
+            : null,
+        createdAt: Date.now()
+      });
+    } else {
+      await update(userRef, {
+        phone: fullPhone,
+        phoneVerified: true,
+        profileComplete: true
+      });
+    }
+
+    setMsg("Phone verified successfully ✔️", true);
+
+    // Redirect
+    const roleSnap = await get(ref(db, `users/${uid}/role`));
+    const role = roleSnap.exists() ? roleSnap.val() : "client";
+
+    window.location.href =
+      role === "stylist"
+        ? "stylist-dashboard.html"
+        : "booking.html";
+
+  } catch (e) {
+    setMsg(e.message || "Could not verify.");
+    verifyBtn.disabled = false;
+    verifyBtn.textContent = "Verify";
+  }
+});
 </script>
 </body>
 </html>
