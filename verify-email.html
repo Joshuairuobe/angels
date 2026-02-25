@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Email — Angels Hair Mall</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:520px;margin:60px auto;padding:0 20px}
+    h1{font-size:26px;margin-bottom:10px}
+    p{color:#444;line-height:1.6}
+    button{padding:12px 14px;border:1px solid #000;background:#000;color:#fff;cursor:pointer;border-radius:6px;margin-top:14px}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    a{display:inline-block;margin-top:16px;color:#000}
+    .msg{margin-top:12px;color:#b00020}
+    .ok{color:#0a7a0a}
+  </style>
+</head>
+<body>
+  <h1>Verify your email</h1>
+  <p>We’ve sent a verification link to your email. Please open it, verify your account, then come back and sign in.</p>
+
+  <button id="resendBtn">Resend verification email</button>
+  <div id="msg" class="msg"></div>
+
+  <a href="login.html">Back to sign in</a>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+    authDomain: "angelshairmall.firebaseapp.com",
+    databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+    projectId: "angelshairmall",
+    messagingSenderId: "374317477500",
+    appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const resendBtn = document.getElementById("resendBtn");
+  const msg = document.getElementById("msg");
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      msg.textContent = "Please sign in first, then you can resend the email.";
+      resendBtn.disabled = true;
+    }
+  });
+
+  resendBtn.addEventListener("click", async () => {
+    msg.textContent = "";
+    msg.classList.remove("ok");
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("You need to sign in first.");
+      await sendEmailVerification(user);
+
+      msg.textContent = "Verification email sent again. Please check your inbox/spam.";
+      msg.classList.add("ok");
+    } catch (e) {
+      msg.textContent = e.message || "Could not resend verification email.";
+    }
+  });
+</script>
+</body>
+</html>
