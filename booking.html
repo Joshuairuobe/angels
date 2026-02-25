@@ -1936,17 +1936,14 @@ async function loadAppointments(){
 /* ===================== INIT UI ===================== */
 renderServices();
 const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
-
-
-</script>
-<!-- Replace the payDepositBtn listener with this -->
-<script>
+// ===== PAY DEPOSIT (Stripe Checkout) =====
 const payDepositBtn = document.getElementById("payDepositBtn");
 
 payDepositBtn.addEventListener("click", async () => {
   payDepositBtn.disabled = true;
 
   try {
+    if (!currentUser) throw new Error("You must be signed in.");
     if (!selectedServices.length) throw new Error("Pick a service");
     if (!selectedStylistId) throw new Error("Pick a stylist");
     if (!dateSelect.value) throw new Error("Pick a date");
@@ -1978,43 +1975,57 @@ payDepositBtn.addEventListener("click", async () => {
       endTime: addMinsToTime(selectedTime, duration),
 
       price,
-      deposit: 10,
-      remaining: Math.max(0, price - 10)
+      deposit: DEPOSIT,
+      remaining: Math.max(0, price - DEPOSIT)
     };
 
-    // ✅ Save locally so success page can "complete booking"
     sessionStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
 
-    // ✅ Create Checkout Session (server)
     const token = await currentUser.getIdToken();
 
-const res = await fetch(
-  "https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}` // ⭐ ADD THIS
-    },
-    body: JSON.stringify({
-      amount: 10 * 100,
-      currency: "gbp",
-      serviceName: selectedServices.map(s => s.name).join(" + ")
-    })
-  }
-);
+    const res = await fetch(
+      "https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          amount: DEPOSIT * 100,
+          currency: "gbp",
+          serviceName: bookingDetails.serviceName
+        })
+      }
+    );
 
-    const data = await res.json();
-    if (!res.ok || !data?.url) throw new Error(data?.error || "Could not start payment.");
+    // Helpful debugging
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    if (!res.ok) {
+      console.error("createCheckoutSession failed:", data);
+      throw new Error(data?.error || `Checkout error (${res.status})`);
+    }
+
+    if (!data?.url) {
+      console.error("No url returned:", data);
+      throw new Error("No checkout url returned from server");
+    }
 
     window.location.href = data.url;
+
   } catch (e) {
     console.error(e);
     toast(payToast, e.message || "Payment failed to start.");
     payDepositBtn.disabled = false;
   }
 });
+
 </script>
+<!-- Replace the payDepositBtn listener with this -->
+
 <!--
 ==================== IMPORTANT RTDB NOTES (for this booking page) =====================
 
