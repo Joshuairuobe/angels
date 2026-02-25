@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — Angels Hair Mall</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#ffffff;
+  --ink:#0b0b0b;
+  --muted:#6f6f6f;
+  --line:#ececec;
+  --card:#ffffff;
+  --shadow: 0 18px 50px rgba(0,0,0,.06);
+  --radius: 18px;
+  --gold:#b79a4a;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+a{ color:inherit; text-decoration:none; }
+button, input, select, textarea{ font:inherit; }
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.9);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1400px;
+  margin:auto;
+  padding:16px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{
+  display:flex; align-items:baseline; gap:10px;
+}
+.brand-title{
+  font-family:"Playfair Display", serif;
+  letter-spacing:.14em;
+  font-size:15px;
+  text-transform:uppercase;
+}
+.badge{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  border-radius:999px;
+  color:var(--muted);
+}
+.whoami{
+  display:flex; align-items:center; gap:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+.nav-actions{ display:flex; align-items:center; gap:10px; }
+
+.btn{
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.btn.ghost{
+  background:transparent;
+  color:var(--ink);
+}
+.btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+.shell{
+  max-width:1400px;
+  margin:0 auto;
+  padding:18px 22px 40px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap:18px;
+}
+
+.sidebar{
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  position:sticky;
+  top:88px;
+  height: calc(100vh - 120px);
+  display:flex;
+  flex-direction:column;
+}
+.side-head{
+  padding:18px;
+  border-bottom:1px solid var(--line);
+}
+.side-head .title{
+  font-family:"Playfair Display", serif;
+  font-size:20px;
+  letter-spacing:.06em;
+}
+.side-head .sub{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+.menu{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  overflow:auto;
+}
+.menu button{
+  width:100%;
+  text-align:left;
+  padding:12px 12px;
+  border-radius: 14px;
+  border:1px solid transparent;
+  background:transparent;
+  cursor:pointer;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.menu button:hover{ background:#fafafa; }
+.menu button.active{
+  border-color: var(--line);
+  background:#fafafa;
+}
+.pill{
+  font-size:11px;
+  color:var(--muted);
+  border:1px solid var(--line);
+  padding:4px 8px;
+  border-radius:999px;
+}
+
+.content{
+  min-width:0;
+}
+
+.section{
+  display:none;
+}
+.section.active{ display:block; }
+
+.kpis{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:14px;
+}
+.card{
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.card-pad{ padding:16px; }
+.kpi-label{
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.kpi-value{
+  margin-top:8px;
+  font-family:"Playfair Display", serif;
+  font-size:28px;
+  letter-spacing:.02em;
+}
+.kpi-sub{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.row{
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap:14px;
+  margin-top:14px;
+}
+
+.h2{
+  font-family:"Playfair Display", serif;
+  font-weight:400;
+  letter-spacing:.06em;
+  font-size:22px;
+  margin:0 0 10px 0;
+}
+.small{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin:0 0 12px 0;
+}
+
+.table{
+  width:100%;
+  border-collapse: collapse;
+  border-top:1px solid var(--line);
+}
+.table th, .table td{
+  padding:12px 10px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+  vertical-align:top;
+}
+.table th{
+  color:var(--muted);
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:11px;
+}
+.table td .muted{ color:var(--muted); font-size:12px; margin-top:4px; }
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  color:var(--muted);
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-bottom:10px;
+}
+.field label{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.field input, .field select, .field textarea{
+  border:1px solid var(--line);
+  border-radius: 14px;
+  padding:12px 12px;
+  outline:none;
+  background:#fff;
+}
+.field textarea{ min-height:86px; resize:vertical; }
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:var(--ink);
+  color:#fff;
+  padding:12px 14px;
+  border-radius:999px;
+  font-size:12px;
+  letter-spacing:.08em;
+  opacity:0;
+  transform: translateY(12px);
+  transition:.25s ease;
+  z-index:999;
+}
+.toast.show{ opacity:1; transform: translateY(0); }
+
+@media (max-width: 1080px){
+  .grid{ grid-template-columns: 1fr; }
+  .sidebar{ position:relative; top:0; height:auto; }
+  .kpis{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .row{ grid-template-columns: 1fr; }
+}
+@media (max-width: 520px){
+  .kpis{ grid-template-columns: 1fr; }
+}
+/* ===========================
+   GUCCI-INSPIRED SETTINGS UI
+   =========================== */
+
+.settings-card h2 {
+  font-family: "Playfair Display", serif;
+  font-weight: 400;
+  letter-spacing: .06em;
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+
+.settings-card .small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+/* --- Shop days list --- */
+.shop-days {
+  border-top: 1px solid var(--line);
+}
+
+.shop-day {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.shop-day:last-child {
+  border-bottom: none;
+}
+
+.shop-day strong {
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.shop-day span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* --- Right controls --- */
+.shop-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shop-controls input[type="time"],
+.closed-dates input[type="date"] {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #fff;
+}
+
+/* --- Toggle switch --- */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 22px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle span {
+  position: absolute;
+  inset: 0;
+  background: #ddd;
+  border-radius: 999px;
+  transition: .25s ease;
+}
+
+.toggle span::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 2px;
+  top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .25s ease;
+}
+
+.toggle input:checked + span {
+  background: var(--ink);
+}
+
+.toggle input:checked + span::before {
+  transform: translateX(22px);
+}
+
+/* --- Closed dates --- */
+.closed-dates {
+  margin-top: 10px;
+}
+
+.closed-date-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.closed-date-row:last-child {
+  border-bottom: none;
+}
+
+.closed-date-row button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.closed-date-row button:hover {
+  color: var(--ink);
+}
+/* ===================== ADMIN GALLERY ===================== */
+
+#view-gallery .card-pad {
+  display: grid;
+  gap: 14px;
+}
+
+#view-gallery .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Upload input */
+#galleryImage {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px dashed var(--line);
+  background: var(--soft);
+  cursor: pointer;
+}
+
+/* Inputs */
+#galleryTitle,
+#galleryCaption {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+#galleryCaption {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* Primary button */
+#addGalleryItemBtn {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* Gallery grid */
+.admin-gallery-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+/* Gallery card */
+.admin-gallery-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.admin-gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px rgba(0,0,0,.08);
+}
+
+/* Image */
+.admin-gallery-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: #f2f2f2;
+}
+
+/* Meta */
+.admin-gallery-meta {
+  padding: 12px 14px;
+}
+
+.admin-gallery-meta strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.admin-gallery-meta p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* Actions */
+.admin-gallery-actions {
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-gallery-actions button {
+  border: none;
+  background: none;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--danger);
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  border:1px solid #111;
+  background:#111;
+  color:#fff;
+  text-decoration:none; /* IMPORTANT for <a> */
+  transition:.2s ease;
+}
+
+
+
+
+</style>
+</head>
+<style>
+.admin-btn{
+  display:inline-block;
+  padding:12px 16px;
+  border-radius:999px;
+  border:1px solid #000;
+  background:#000;
+  color:#fff;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.admin-btn:hover{opacity:.92}
+</style>
+
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-title">ANGELS HAIR MALL</div>
+      <div class="badge">Admin</div>
+    </div>
+
+    <div class="nav-actions">
+      <a href="index.html" class="tag">Home</a>
+      <button class="btn ghost" id="refreshBtn">Refresh</button>
+      <button class="btn ghost" id="stylistBtn">Stylist View</button>
+
+      <button class="btn" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="grid">
+
+    <aside class="sidebar">
+      <div class="side-head">
+        <div class="title">Admin Dashboard</div>
+        <div class="sub">
+          Approvals, reviews, revenue, and walk-ins — in one place.
+        </div>
+        <div class="whoami" style="margin-top:10px">
+          <span class="pill" id="whoami">Not signed in</span>
+        </div>
+      </div>
+
+      <div class="menu" id="menu">
+        <button data-view="overview" class="active">Overview <span class="pill" id="pillOverview">—</span></button>
+        <button data-view="approvals">Stylist approvals <span class="pill" id="pillApprovals">0</span></button>
+        <button data-view="reviews">Review moderation <span class="pill" id="pillReviews">0</span></button>
+        <button data-view="revenue">Revenue analytics <span class="pill" id="pillRevenue">📈</span></button>
+        <button data-view="walkins">Walk-ins <span class="pill" id="pillWalkins">🚶</span></button>
+        <button data-view="stylists">Stylists <span class="pill" id="pillStylists"> 💇</span></button>
+        <button data-view="settings">Settings <span class="pill">⚙</span></button>
+        <button type="button" id="openGalleryBtn">
+  Gallery <span class="pill">🖼</span>
+
+</button>
+<a href="about-manager.html" class="admin-btn">
+About Manager
+</a>
+
+<button class="admin-btn homepage-btn"
+onclick="goHomepageManager()">
+Homepage Manager
+</button>
+<a href="shop-manager.html">
+<button>Shop Manager</button>
+</a>
+
+<script>
+function goHomepageManager(){
+    window.location.href = "admin-homepage.html";
+}
+</script>
+
+
+<button class="btn ghost" onclick="window.location.href='admin-service-requests.html'">
+  Service Requests
+</button>
+<script>
+  document
+    .getElementById("serviceRequestsBtn")
+    .addEventListener("click", () => {
+      window.location.href = "admin-service-requests.html";
+    });
+</script>
+
+<button id="goBlogBtn">
+  Blog Manager <span class="pill">✍️</span>
+</button>
+<a href="admin-services.html" class="btn">Manage Services</a>
+
+<script>
+  document.getElementById("goBlogBtn")?.addEventListener("click", () => {
+    window.location.href = "admin-blog.html";
+  });
+</script>
+
+<script>
+  document
+    .getElementById("openGalleryBtn")
+    .addEventListener("click", () => {
+      window.location.href = "admin-gallery.html";
+    });
+</script>
+
+
+      
+
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- OVERVIEW -->
+      <section class="section active" id="view-overview">
+        <div class="kpis">
+          <div class="card"><div class="card-pad">
+            <div class="kpi-label">Today</div>
+            <div class="kpi-value" id="kpiToday">£0</div>
+            <div class="kpi-sub" id="kpiTodaySub">Booked + walk-ins</div>
+          </div></div>
+
+          <div class="card"><div class="card-pad">
+            <div class="kpi-label">This month</div>
+            <div class="kpi-value" id="kpiMonth">£0</div>
+            <div class="kpi-sub">Gross revenue</div>
+          </div></div>
+
+          <div class="card"><div class="card-pad">
+            <div class="kpi-label">Cancelled value</div>
+            <div class="kpi-value" id="kpiCancelled">£0</div>
+            <div class="kpi-sub">What you would have made</div>
+          </div></div>
+
+          <div class="card"><div class="card-pad">
+            <div class="kpi-label">Top service</div>
+            <div class="kpi-value" id="kpiTopService">—</div>
+            <div class="kpi-sub" id="kpiTopServiceSub">Highest grossing</div>
+          </div></div>
+        </div>
+
+        <div class="row">
+          <div class="card"><div class="card-pad">
+            <div class="h2">Pending approvals</div>
+            <p class="small">Only approved stylists appear to customers.</p>
+            <table class="table" id="approvalsTable">
+              <thead><tr>
+                <th>Stylist</th><th>Profession</th><th>Created</th><th>Actions</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div></div>
+
+          <div class="card"><div class="card-pad">
+            <div class="h2">Pending reviews</div>
+            <p class="small">Approve to show on homepage. Reject hides it.</p>
+            <table class="table" id="reviewsTable">
+              <thead><tr>
+                <th>Rating</th><th>Review</th><th>Created</th><th>Actions</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div></div>
+        </div>
+        
+      </section>
+
+      <!-- APPROVALS -->
+      <section class="section" id="view-approvals">
+        <div class="card"><div class="card-pad">
+          <div class="h2">Stylist approvals</div>
+          <p class="small">Approve to unlock stylist dashboard features and show them on booking.</p>
+          <table class="table" id="approvalsTableFull">
+            <thead><tr>
+              <th>Stylist</th><th>Profession</th><th>Status</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <!-- REVIEWS -->
+      <section class="section" id="view-reviews">
+        <div class="card"><div class="card-pad">
+          <div class="h2">Review moderation</div>
+          <p class="small">Set status: approved (shows), rejected (hidden), pending (waiting).</p>
+          <table class="table" id="reviewsTableFull">
+            <thead><tr>
+              <th>Rating</th><th>Text</th><th>Stylist</th><th>Status</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div></div>
+      </section>
+
+      <!-- REVENUE -->
+      <section class="section" id="view-revenue">
+        <div class="card"><div class="card-pad">
+          <div class="h2">Revenue analytics</div>
+          <p class="small">Totals include completed/confirmed bookings plus walk-ins. Cancelled value is tracked separately.</p>
+
+          <div class="row" style="margin-top:0;">
+            <div class="card"><div class="card-pad">
+              <div class="kpis" style="margin-bottom:14px">
+
+  
+              <div class="kpi-label">Highest service</div>
+              <div class="kpi-value" id="bestService">—</div>
+              <div class="kpi-sub" id="bestServiceSub">£0 gross</div>
+            </div></div>
+            <div class="card"><div class="card-pad">
+              <div class="kpi-label">Lowest service</div>
+              <div class="kpi-value" id="worstService">—</div>
+              <div class="kpi-sub" id="worstServiceSub">£0 gross</div>
+            </div></div>
+          </div>
+
+          <div class="row">
+            <div class="card"><div class="card-pad">
+              <div class="h2">By service</div>
+              <table class="table" id="serviceRevenueTable">
+                <thead><tr><th>Service</th><th>Gross</th><th>Count</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div></div>
+
+            <div class="card"><div class="card-pad">
+              <div class="h2">By stylist</div>
+              <table class="table" id="stylistRevenueTable">
+                <thead><tr><th>Stylist</th><th>Gross</th><th>Count</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div></div>
+          </div>
+<div class="card">
+    <div class="card-pad">
+      <div class="kpi-label">All Time Revenue</div>
+      <div class="kpi-value" id="kpiAllTime">£0</div>
+      <div class="kpi-sub">Since launch</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <div class="kpi-label">Last Month</div>
+      <div class="kpi-value" id="kpiLastMonth">£0</div>
+      <div class="kpi-sub" id="kpiGrowth">0% growth</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <div class="kpi-label">Estimated Profit</div>
+      <div class="kpi-value" id="kpiProfit">£0</div>
+      <div class="kpi-sub">After expenses</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <div class="kpi-label">Estimated Loss</div>
+      <div class="kpi-value" id="kpiLoss">£0</div>
+      <div class="kpi-sub">Refunds + cancelled</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="card">
+  <div class="card-pad">
+    <div class="h2">Monthly Revenue</div>
+    <canvas id="revenueChart" height="110"></canvas>
+  </div>
+</div>
+<div class="card">
+  <div class="card-pad">
+    <div class="kpi-label">Shop Revenue</div>
+    <div class="kpi-value" id="kpiShopRevenue">£0</div>
+  </div>
+</div>
+
+        </div></div>
+      </section>
+
+      <!-- WALKINS -->
+      <section class="section" id="view-walkins">
+        <div class="row" style="margin-top:0;">
+          <div class="card"><div class="card-pad">
+            <div class="h2">Add walk-in</div>
+            <p class="small">Track cash/card walk-ins so revenue reporting is complete.</p>
+
+            <div class="field">
+              <label>Stylist</label>
+              <select id="walkinStylist"></select>
+            </div>
+
+            <div class="field">
+              <label>Service</label>
+              <select id="walkinService"></select>
+            </div>
+
+            <div class="field">
+              <label>Amount (£)</label>
+              <input id="walkinAmount" type="number" min="0" step="0.01" placeholder="e.g. 45" />
+            </div>
+
+            <div class="field">
+              <label>Payment method</label>
+              <select id="walkinMethod">
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Notes (optional)</label>
+              <textarea id="walkinNotes" placeholder="Any notes…"></textarea>
+            </div>
+
+            <button class="btn" id="addWalkinBtn">Add walk-in</button>
+          </div></div>
+
+          <div class="card"><div class="card-pad">
+            <div class="h2">Walk-ins list</div>
+            <p class="small">Latest 50 walk-ins.</p>
+            <table class="table" id="walkinsTable">
+              <thead><tr><th>When</th><th>Stylist</th><th>Service</th><th>Amount</th><th>Method</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- STYLISTS -->
+      <section class="section" id="view-stylists">
+        <div class="card"><div class="card-pad">
+          <div class="h2">Stylists</div>
+          <p class="small">View performance snapshots.</p>
+          <p class="small">
+  Stylists can <strong>request services</strong>, but only
+  <strong>admin-approved services</strong> will appear on the booking page.
+</p>
+<p class="small">
+  Service availability is controlled centrally to maintain quality and consistency.
+</p>
+
+
+          <table class="table" id="stylistsTable">
+            <thead><tr><th>Stylist</th><th>Approved</th><th>Bookings</th><th>Gross</th><th>Top service</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div></div>
+      </section>
+
+
+      <!-- SETTINGS -->
+     <!-- SETTINGS -->
+<section class="section" id="view-settings">
+
+  <!-- ADMIN INFO -->
+  <div class="card settings-card">
+    <div class="card-pad">
+      <div class="h2">Settings</div>
+
+      <div class="field">
+        <label>Admin email</label>
+        <input id="adminEmailView" disabled />
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOP AVAILABILITY -->
+  <div class="card settings-card">
+    <div class="card-pad">
+      <h2>Shop Availability</h2>
+      <p class="small">
+        Control weekly opening hours. These rules apply to all stylists.
+      </p>
+
+      <div class="shop-days" id="shopDays"></div>
+
+      <div class="section-actions">
+        <button class="btn primary" id="saveShopAvailabilityBtn">
+          Save Shop Hours
+        </button>
+
+        <p class="small" style="margin-top:10px;">
+          ⏰ Times are shown in <strong>24-hour format</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSED DATES -->
+  <div class="card settings-card">
+    <div class="card-pad">
+      <h2>Closed Dates</h2>
+      <p class="small">
+        Fully close the shop on specific dates.
+      </p>
+
+      <div class="row closed-dates">
+        <input type="date" id="closedDateInput">
+        <button class="btn ghost" id="addClosedDateBtn">
+          Add Closed Date
+        </button>
+      </div>
+
+      <div id="closedDatesList"></div>
+    </div>
+  </div>
+
+  
+
+
+<div class="toast" id="toast">Saved</div>
+<!-- SERVICE MANAGER MODAL -->
+<div id="serviceModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:999;">
+  <div style="
+    background:#fff;
+    max-width:520px;
+    margin:8vh auto;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 30px 80px rgba(0,0,0,.25);
+  ">
+    <h3 class="h2" id="serviceModalTitle">Stylist Services</h3>
+    <p class="small">Services this stylist has selected.</p>
+
+   <form id="serviceModalForm">
+  <div id="serviceModalBody"></div>
+
+  <div style="margin-top:18px; display:flex; justify-content:space-between;">
+    <small class="muted">Only admin-approved services appear on booking.</small>
+    <button class="btn" type="submit">Save services</button>
+  </div>
+</form>
+
+
+    <div style="margin-top:18px; text-align:right">
+      <button class="btn ghost" onclick="closeServiceModal()">Close</button>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<script type="module">
+  import {
+  getStorage,
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  getDatabase, ref, get, set, update,
+  query, limitToLast
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+const ADMIN_EMAIL = "tobbybadbelle@gmail.com";
+
+/* Firebase */
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+  storageBucket: "angelshairmall.appspot.com",
+  messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+/* UI */
+const toastEl = document.getElementById("toast");
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(()=>toastEl.classList.remove("show"), 2400);
+}
+function safeText(s){
+  return String(s ?? "").replace(/[<>&"]/g, c => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c]));
+}
+function money(n){
+  const num = Number(n || 0);
+  if (!Number.isFinite(num)) return "£0";
+  return `£${num.toFixed(2).replace(/\.00$/,"")}`;
+}
+function isoDate(ts){
+  const d = new Date(Number(ts||0));
+  if (!Number.isFinite(d.getTime())) return "—";
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function isoMonth(ts){
+  const d = new Date(Number(ts||0));
+  if (!Number.isFinite(d.getTime())) return "—";
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  return `${y}-${m}`;
+}
+function isToday(ts){
+  const d = new Date(Number(ts||0));
+  const now = new Date();
+  return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+}
+document.addEventListener("click", async (e) => {
+  if (!e.target.matches("#addGalleryItemBtn")) return;
+});
+
+/* MENU */
+const menu = document.getElementById("menu");
+function showView(name){
+  menu.querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(`view-${name}`).classList.add("active");
+}
+menu.addEventListener("click", async (e)=>{
+  const btn = e.target.closest("button[data-view]");
+  if (!btn) return;
+
+  const view = btn.dataset.view;
+  showView(view);
+
+  // 🔄 load gallery only when opened
+  if (view === "gallery") {
+    await loadAdminGallery();
+  }
+});
+
+const dayKeys = [
+  { k: "mon", name: "Monday" },
+  { k: "tue", name: "Tuesday" },
+  { k: "wed", name: "Wednesday" },
+  { k: "thu", name: "Thursday" },
+  { k: "fri", name: "Friday" },
+  { k: "sat", name: "Saturday" },
+  { k: "sun", name: "Sunday" }
+];
+
+let shopAvailability = {};
+async function loadShopAvailability(){
+  const snap = await get(ref(db, "shopAvailability"));
+
+  shopAvailability = snap.exists()
+    ? snap.val()
+    : {};
+
+  dayKeys.forEach(d => {
+    if (!shopAvailability[d.k]) {
+      shopAvailability[d.k] = {
+        enabled: d.k !== "sun",
+        start: "09:00",
+        end: "18:00"
+      };
+    }
+  });
+
+  renderShopAvailability();
+}
+function renderShopAvailability(){
+  const wrap = document.getElementById("shopDays");
+
+  wrap.innerHTML = dayKeys.map(d => {
+    const v = shopAvailability[d.k];
+    return `
+      <div class="shop-day">
+        <div>
+          <strong>${d.name}</strong>
+          <span>${v.enabled ? "Open hours" : "Closed"}</span>
+        </div>
+
+        <div class="shop-controls">
+          <input type="time"
+            value="${v.start}"
+            ${!v.enabled ? "disabled" : ""}
+            data-start="${d.k}"
+          >
+
+          <input type="time"
+            value="${v.end}"
+            ${!v.enabled ? "disabled" : ""}
+            data-end="${d.k}"
+          >
+
+          <label class="toggle">
+            <input type="checkbox"
+              data-enabled="${d.k}"
+              ${v.enabled ? "checked" : ""}
+            >
+            <span></span>
+          </label>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  wrap.querySelectorAll("input").forEach(el => {
+    el.addEventListener("change", () => {
+      const k =
+        el.dataset.enabled ||
+        el.dataset.start ||
+        el.dataset.end;
+
+      if (el.dataset.enabled !== undefined) {
+        shopAvailability[k].enabled = el.checked;
+      }
+      if (el.dataset.start) {
+        shopAvailability[k].start = el.value;
+      }
+      if (el.dataset.end) {
+        shopAvailability[k].end = el.value;
+      }
+
+      renderShopAvailability(); // re-render to enable/disable inputs
+    });
+  });
+}
+
+document.getElementById("saveShopAvailabilityBtn").onclick = async () => {
+  await set(ref(db, "shopAvailability"), shopAvailability);
+  toast("Shop hours saved");
+
+};
+
+/* ACTIONS */
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  try{ await signOut(auth); }catch(e){}
+  window.location.href = "login.html";
+});
+document.getElementById("refreshBtn").addEventListener("click", ()=> window.location.reload());
+document.getElementById("adminEmailView").value = ADMIN_EMAIL;
+document.getElementById("stylistBtn").addEventListener("click", () => {
+  window.location.href = "stylist-dashboard.html";
+});
+
+/* DATA CACHES */
+let serviceOptions = {};    // id -> {name, category, price, durationMins}
+let stylistProfiles = {};   // uid -> {name, profession, photoURL}
+let stylistsIndex = {};     // uid -> stylist node
+/* ===================== SERVICE MANAGER (ADMIN) ===================== */
+
+window.openServiceManager = async function (uid) {
+  const modal = document.getElementById("serviceModal");
+  const body = document.getElementById("serviceModalBody");
+  const form = document.getElementById("serviceModalForm");
+  const title = document.getElementById("serviceModalTitle");
+
+  modal.style.display = "block";
+  body.innerHTML = "Loading…";
+
+  const name =
+    stylistProfiles?.[uid]?.name ||
+    stylistsIndex?.[uid]?.publicProfile?.name ||
+    uid;
+
+  title.textContent = `${name} — Requested Services`;
+
+// ✅ CORRECT NODE
+const snap = await get(ref(db, `stylists/${uid}/requestedServices`));
+const requested = snap.exists() ? snap.val() : {};
+const approvedSnap = await get(ref(db, `stylists/${uid}/approvedServices`));
+const approvedServices = approvedSnap.exists() ? approvedSnap.val() : {};
+
+
+  body.innerHTML = Object.entries(serviceOptions).map(([id, svc]) => {
+const approved = approvedServices?.[id];
+const checked = approved ? "checked" : "";
+
+  return `
+    <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <input type="checkbox" value="${id}" ${checked}>
+      <span>
+        <strong>${safeText(svc.name)}</strong>
+        <span class="muted">
+          — ${money(svc.price)} • ${safeText(svc.category)}
+        </span>
+      </span>
+    </label>
+  `;
+}).join("");
+
+
+ form.onsubmit = async (e) => {
+  e.preventDefault();
+
+  const updates = {};
+
+  form.querySelectorAll("input[type=checkbox]").forEach(cb => {
+
+    const path = `stylists/${uid}/approvedServices/${cb.value}`;
+
+    if (cb.checked) {
+      updates[path] = true;   // approve
+    } else {
+      updates[path] = null;   // unapprove
+    }
+
+  });
+
+  await update(ref(db), updates);
+
+  toast("Services updated");
+  closeServiceModal();
+  await refreshAll();
+};
+
+ 
+
+};
+
+window.closeServiceModal = function () {
+  document.getElementById("serviceModal").style.display = "none";
+};
+
+// ✅ resolves service id OR "name:XYZ" into a display label
+function serviceLabel(key){
+  const k = String(key || "");
+  if (k.startsWith("name:")) return k.slice(5);
+  return serviceOptions?.[k]?.name || k || "—";
+}
+
+// ✅ makes sure admin user ALSO exists under /stylists/{uid} so tables + dropdowns work
+async function ensureAdminStylistNode(user){
+
+  if (!user) return;
+
+  const token = await user.getIdTokenResult();
+  if (!token.claims.admin) return;
+
+  const stRef = ref(db, `stylists/${user.uid}`);
+  const stSnap = await get(stRef);
+
+  // ✅ NEVER overwrite if exists
+  if (stSnap.exists()) return;
+
+  // Pull from users node
+  let displayName = null;
+  let profession = null;
+  let photoURL = "";
+
+  try{
+    const uSnap = await get(ref(db, `users/${user.uid}`));
+
+    if (uSnap.exists()){
+      const u = uSnap.val();
+
+      displayName =
+        u.name ||
+        u.displayName ||
+        user.displayName ||
+        user.email.split("@")[0];
+
+      profession =
+        u.profession ||
+        null; // ⭐ IMPORTANT — no placeholder
+
+      photoURL = u.photoURL || "";
+    }
+  }catch(e){
+    console.error("Admin stylist seed error:", e);
+  }
+
+  // ⭐ Final safety fallback (ONLY for name)
+  if (!displayName){
+    displayName = user.email.split("@")[0];
+  }
+
+  await set(stRef, {
+    approved: true,
+    isOwner: true, // 🔥 VERY powerful field
+    publicProfile: {
+      name: displayName,
+      profession, // can be null — THAT IS OK
+      photoURL
+    },
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  });
+
+}
+
+async function loadAdminGallery() {
+  const grid = document.getElementById("adminGalleryGrid");
+  if (!grid) return; // 🔒 critical safety guard
+
+  const snap = await get(ref(db, "gallery"));
+  const data = snap.exists() ? snap.val() : {};
+
+  grid.innerHTML = Object.entries(data)
+    .sort((a,b)=>b[1].createdAt - a[1].createdAt)
+    .map(([id, g]) => `
+      <div class="card">
+       <img src="${g.imageBase64}" style="width:100%;border-radius:14px">
+
+        <div style="padding:10px">
+          <strong>${safeText(g.title)}</strong>
+          <p class="small">${safeText(g.caption || "")}</p>
+        </div>
+      </div>
+    `).join("") || `<p class="muted">No gallery items yet.</p>`;
+}
+
+
+async function loadLookups(){
+  // service options
+  const svcSnap = await get(ref(db, "bookingServices"));
+serviceOptions = {};
+
+if (svcSnap.exists()) {
+  Object.entries(svcSnap.val()).forEach(([category, services]) => {
+    Object.entries(services).forEach(([id, svc]) => {
+      serviceOptions[id] = {
+        ...svc,
+        category
+      };
+    });
+  });
+}
+
+
+  // ✅ DO NOT filter approved here (admin needs to see ALL stylists)
+  const stSnap = await get(ref(db, "stylists"));
+  stylistsIndex = stSnap.exists() ? (stSnap.val() || {}) : {};
+
+  stylistProfiles = {};
+  Object.entries(stylistsIndex).forEach(([uid, s]) => {
+    if (s?.publicProfile) stylistProfiles[uid] = s.publicProfile;
+  });
+
+  // Fill walk-in selects
+  const stylistSelect = document.getElementById("walkinStylist");
+  stylistSelect.innerHTML = `<option value="">Select stylist</option>`;
+  Object.entries(stylistProfiles).forEach(([uid, p])=>{
+    const name = p?.name || "Stylist";
+    const opt = document.createElement("option");
+    opt.value = uid;
+    opt.textContent = name;
+    stylistSelect.appendChild(opt);
+  });
+
+  const serviceSelect = document.getElementById("walkinService");
+  serviceSelect.innerHTML = `<option value="">Select service</option>`;
+  Object.entries(serviceOptions || {}).forEach(([id, s])=>{
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = `${s?.name || id} — ${money(s?.price || 0)}`;
+    serviceSelect.appendChild(opt);
+  });
+}
+
+/* APPROVALS */
+function approvalsRow(appUid, app, compact=false){
+  const name = safeText(app?.name || app?.displayName || app?.email || appUid);
+  const prof = safeText(app?.profession || "—");
+  const created = isoDate(app?.createdAt);
+  const status = safeText(app?.status || "pending");
+  const buttons = `
+    <div class="actions">
+      <button class="btn" data-approve="${appUid}">Approve</button>
+      <button class="btn ghost" data-reject="${appUid}">Reject</button>
+    </div>`;
+  if (compact){
+    return `<tr>
+      <td>${name}<div class="muted">${safeText(app?.email||"")}</div></td>
+      <td>${prof}</td>
+      <td>${created}</td>
+      <td>${buttons}</td>
+    </tr>`;
+  }
+  return `<tr>
+    <td>${name}<div class="muted">${safeText(app?.email||"")}</div></td>
+    <td>${prof}</td>
+    <td><span class="tag">${status}</span></td>
+    <td>${created}</td>
+    <td>${buttons}</td>
+  </tr>`;
+}
+
+async function loadApplications(){
+  const appsSnap = await get(ref(db, "stylistApplications"));
+  const apps = appsSnap.exists() ? appsSnap.val() : {};
+
+  const pendingFromApps = Object.entries(apps)
+    .filter(([,a]) => (a?.status || "pending") === "pending")
+    .map(([uid, a]) => ({
+      uid,
+      source: "application",
+      data: a
+    }));
+
+  const pendingFromStylists = Object.entries(stylistsIndex || {})
+    .filter(([uid, s]) => s?.approved !== true)
+    .filter(([uid]) => !apps[uid]) // avoid duplicates
+    .map(([uid, s]) => ({
+      uid,
+      source: "stylist",
+      data: {
+        name: s?.publicProfile?.name,
+        profession: s?.publicProfile?.profession,
+        createdAt: s?.createdAt || s?.updatedAt,
+        status: "pending"
+      }
+    }));
+
+  const pending = [...pendingFromApps, ...pendingFromStylists];
+
+  // 🔢 sidebar pill
+  document.getElementById("pillApprovals").textContent = pending.length;
+
+  // 🧾 overview table
+  const tbodySmall = document.querySelector("#approvalsTable tbody");
+  tbodySmall.innerHTML = pending
+    .slice(-6)
+    .reverse()
+    .map(p => approvalsRow(p.uid, p.data, true))
+    .join("") ||
+    `<tr><td colspan="4" class="muted">No pending approvals.</td></tr>`;
+
+  // 📋 full approvals table
+  const tbodyFull = document.querySelector("#approvalsTableFull tbody");
+  tbodyFull.innerHTML = pending
+    .sort((a,b)=>(b.data?.createdAt||0)-(a.data?.createdAt||0))
+    .map(p => approvalsRow(p.uid, p.data, false))
+    .join("") ||
+    `<tr><td colspan="5" class="muted">No applications yet.</td></tr>`;
+
+  [tbodySmall, tbodyFull].forEach(tb=>{
+    tb.querySelectorAll("[data-approve]").forEach(btn=>{
+      btn.onclick = () => approveStylist(btn.dataset.approve);
+    });
+    tb.querySelectorAll("[data-reject]").forEach(btn=>{
+      btn.onclick = () => rejectStylist(btn.dataset.reject);
+    });
+  });
+}
+
+async function approveStylist(uid){
+
+  const appSnap = await get(ref(db, `stylistApplications/${uid}`));
+  const app = appSnap.exists() ? appSnap.val() : {};
+
+  // ✅ Create stylist node FULLY
+  await set(ref(db, `stylists/${uid}`), {
+    approved: true,
+    publicProfile: {
+      name:
+  app?.name ||
+  app?.displayName ||
+  (app?.email ? app.email.split("@")[0] : null),
+
+profession:
+  app?.profession || null,
+
+      photoURL: app?.photoURL || ""
+    },
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  });
+
+  // ✅ Update user role
+  await update(ref(db, `users/${uid}`), {
+    role: "stylist",
+    stylistApproved: true,
+    approvedAt: Date.now()
+  });
+
+  // ✅ Mark application approved
+  await update(ref(db, `stylistApplications/${uid}`), {
+    status: "approved",
+    moderatedAt: Date.now()
+  });
+
+  toast("Stylist approved.");
+  await refreshAll();
+}
+
+
+async function rejectStylist(uid){
+  await update(ref(db, `users/${uid}`), {
+    role: "client",
+    stylistApproved: null,
+    approvedAt: null
+  });
+
+  await update(ref(db, `stylistApplications/${uid}`), {
+    status: "rejected",
+    moderatedAt: Date.now()
+  });
+
+  toast("Application rejected.");
+  await refreshAll();
+}
+
+/* REVIEWS */
+function reviewsRow(id, r, compact=false){
+  const rating = Number(r?.rating || 0);
+  const stars = "★".repeat(Math.max(0, Math.min(5, rating))) + "☆".repeat(Math.max(0, 5-rating));
+  const text = safeText(r?.text || r?.review || "");
+  const created = isoDate(r?.createdAt);
+  const status = safeText(r?.status || "pending");
+  const stylistName = safeText(stylistProfiles[r?.stylistId]?.name || r?.stylistId || "—");
+
+  const buttons = `
+    <div class="actions">
+      <button class="btn" data-review-approve="${id}">Approve</button>
+      <button class="btn ghost" data-review-reject="${id}">Reject</button>
+      <button class="btn ghost" data-review-pending="${id}">Pending</button>
+    </div>`;
+
+  if (compact){
+    return `<tr>
+      <td>${safeText(stars)}</td>
+      <td>${text.slice(0,80)}${text.length>80?"…":""}</td>
+      <td>${created}</td>
+      <td>${buttons}</td>
+    </tr>`;
+  }
+  return `<tr>
+    <td>${safeText(stars)}</td>
+    <td>${text}</td>
+    <td>${stylistName}</td>
+    <td><span class="tag">${status}</span></td>
+    <td>${created}</td>
+    <td>${buttons}</td>
+  </tr>`;
+}
+
+async function loadReviews(){
+  const snap = await get(ref(db, "reviews"));
+  const raw = snap.exists() ? snap.val() : {};
+  const entries = Object.entries(raw).sort((a,b)=>(b[1]?.createdAt||0)-(a[1]?.createdAt||0));
+
+  const pending = entries.filter(([,r]) => (r?.status || "pending") === "pending");
+  document.getElementById("pillReviews").textContent = String(pending.length);
+
+  const tbodySmall = document.querySelector("#reviewsTable tbody");
+  tbodySmall.innerHTML = pending.slice(0,6).map(([id,r]) => reviewsRow(id,r,true)).join("")
+    || `<tr><td colspan="4" class="muted">No pending reviews.</td></tr>`;
+
+  const tbodyFull = document.querySelector("#reviewsTableFull tbody");
+  tbodyFull.innerHTML = entries.map(([id,r]) => reviewsRow(id,r,false)).join("")
+    || `<tr><td colspan="6" class="muted">No reviews yet.</td></tr>`;
+
+  function wire(tb){
+    tb.querySelectorAll("[data-review-approve]").forEach(b=> b.addEventListener("click", ()=> setReviewStatus(b.dataset.reviewApprove, "approved")));
+    tb.querySelectorAll("[data-review-reject]").forEach(b=> b.addEventListener("click", ()=> setReviewStatus(b.dataset.reviewReject, "rejected")));
+    tb.querySelectorAll("[data-review-pending]").forEach(b=> b.addEventListener("click", ()=> setReviewStatus(b.dataset.reviewPending, "pending")));
+  }
+  wire(tbodySmall);
+  wire(tbodyFull);
+}
+
+async function setReviewStatus(id, status){
+  await update(ref(db, `reviews/${id}`), {
+    status,
+    moderatedAt: Date.now()
+  });
+  toast(`Review set: ${status}.`);
+  await refreshAll();
+}
+
+/* WALK-INS */
+async function addWalkin(){
+  const stylistId = document.getElementById("walkinStylist").value;
+  const serviceId = document.getElementById("walkinService").value;
+  const amount = Number(document.getElementById("walkinAmount").value || 0);
+  const method = document.getElementById("walkinMethod").value;
+  const notes = document.getElementById("walkinNotes").value.trim();
+
+  if (!stylistId) return toast("Select stylist.");
+  if (!serviceId) return toast("Select service.");
+  if (!(amount > 0)) return toast("Enter amount.");
+
+  const id = `w_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  await set(ref(db, `walkins/${id}`), {
+    id,
+    stylistId,
+    serviceId,
+    amount,
+    method,
+    notes: notes || null,
+    occurredAt: Date.now(),
+    createdAt: Date.now()
+  });
+
+  document.getElementById("walkinAmount").value = "";
+  document.getElementById("walkinNotes").value = "";
+  toast("Walk-in added.");
+  await refreshAll();
+}
+document.getElementById("addWalkinBtn").addEventListener("click", addWalkin);
+
+async function loadWalkins(){
+  const snap = await get(query(ref(db, "walkins"), limitToLast(50)));
+  const raw = snap.exists() ? snap.val() : {};
+  const entries = Object.entries(raw).sort((a,b)=>(b[1]?.occurredAt||0)-(a[1]?.occurredAt||0));
+
+  const tbody = document.querySelector("#walkinsTable tbody");
+  tbody.innerHTML = entries.map(([id,w])=>{
+    const when = isoDate(w?.occurredAt);
+    const stylist = safeText(stylistProfiles[w?.stylistId]?.name || w?.stylistId || "—");
+    const svc = safeText(serviceOptions[w?.serviceId]?.name || w?.serviceId || "—");
+    return `<tr>
+      <td>${when}</td>
+      <td>${stylist}</td>
+      <td>${svc}</td>
+      <td>${money(w?.amount||0)}</td>
+      <td>${safeText(w?.method||"—")}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="5" class="muted">No walk-ins recorded.</td></tr>`;
+}
+
+/* REVENUE / STATS */
+function normalizeBookingServiceKeys(b){
+  // Supports:
+  // 1) services: [{id:true}] map -> ids
+  // 2) services: ["svcId", ...] -> ids
+  // 3) services: [{id/serviceId, name}, ...] -> ids if present, else "name:NAME"
+  const s = b?.services ?? b?.serviceIds ?? {};
+  if (Array.isArray(s)){
+    const keys = [];
+    s.forEach(item=>{
+      if (typeof item === "string") keys.push(item);
+      else if (item && typeof item === "object"){
+        const id = item.id || item.serviceId;
+        if (id) keys.push(id);
+        else if (item.name) keys.push(`name:${item.name}`);
+      }
+    });
+    return keys;
+  }
+  if (s && typeof s === "object"){
+    return Object.keys(s).filter(k => !!s[k]);
+  }
+  return [];
+}
+
+function bookingTotalPrice(b){
+  // supports totalPrice OR price OR deposit+remaining
+  const a = Number(b?.totalPrice ?? b?.total ?? b?.price ?? 0);
+  if (a > 0) return a;
+  const dep = Number(b?.deposit ?? 0);
+  const rem = Number(b?.remaining ?? 0);
+  const sum = dep + rem;
+  return (sum > 0) ? sum : 0;
+}
+
+async function loadRevenue(){
+  const shopSnap = await get(ref(db, "shop/orders"));
+const shopOrders = shopSnap.exists() ? shopSnap.val() : {};
+
+let shopRevenue = 0;
+
+Object.values(shopOrders).forEach(order=>{
+  if(order.status === "paid"){
+    shopRevenue += Number(order.total || 0);
+  }
+});
+
+  const snap = await get(ref(db, "bookings"));
+  const bookings = snap.exists() ? snap.val() : {};
+
+  const walkSnap = await get(ref(db, "walkins"));
+  const walkins = walkSnap.exists() ? walkSnap.val() : {};
+
+  let today = 0;
+  let monthTotal = 0;
+  let cancelledValue = 0;
+let allTime = 0;
+let monthlyTotals = {};
+
+  const byService = {}; // key -> {gross,count}
+  const byStylist = {}; // uid -> {gross,count}
+  const stylistTopService = {}; // uid -> {key -> gross}
+
+  const now = Date.now();
+  const currentMonth = isoMonth(now);
+
+  function addService(key, amount){
+    if (!key) return;
+    byService[key] = byService[key] || {gross:0,count:0};
+    byService[key].gross += amount;
+    byService[key].count += 1;
+  }
+
+  function addStylist(stylistId, amount){
+    if (!stylistId) return;
+    byStylist[stylistId] = byStylist[stylistId] || {gross:0,count:0};
+    byStylist[stylistId].gross += amount;
+    byStylist[stylistId].count += 1;
+  }
+/* ===================== BOOKINGS ===================== */
+Object.values(bookings).forEach(b => {
+  const status = (b?.status || "pending").toLowerCase();
+  const ts = b?.scheduledAt || b?.createdAt || 0;
+  const totalPrice = bookingTotalPrice(b);
+  const stylistId = b?.stylistId;
+
+  if (status === "cancelled") {
+    cancelledValue += totalPrice;
+    return;
+  }
+
+  if (status !== "confirmed" && status !== "completed") return;
+
+  if (isToday(ts)) today += totalPrice;
+  if (isoMonth(ts) === currentMonth) monthTotal += totalPrice;
+
+  addStylist(stylistId, totalPrice);
+
+  const keys = normalizeBookingServiceKeys(b);
+  if (!keys.length) return;
+
+  const prices = keys.map(k => {
+    if (String(k).startsWith("name:")) return 0;
+    return Number(serviceOptions?.[k]?.price || 0);
+  });
+  const sumPrices = prices.reduce((a,c)=>a+c,0);
+
+  keys.forEach((k, idx)=>{
+    const alloc = sumPrices > 0
+      ? (totalPrice * (prices[idx]/sumPrices))
+      : (totalPrice / keys.length);
+
+    addService(k, alloc);
+
+    stylistTopService[stylistId] = stylistTopService[stylistId] || {};
+    stylistTopService[stylistId][k] =
+      (stylistTopService[stylistId][k] || 0) + alloc;
+  });
+  const monthKey = isoMonth(ts);
+monthlyTotals[monthKey] =
+  (monthlyTotals[monthKey] || 0) + totalPrice;
+
+allTime = allTime + shopRevenue;
+
+
+});
+
+  Object.values(walkins).forEach(w=>{
+    const ts = w?.occurredAt || w?.createdAt || 0;
+    const amount = Number(w?.amount || 0);
+    const stylistId = w?.stylistId;
+    const serviceId = w?.serviceId;
+
+    if (isToday(ts)) today += amount;
+    if (isoMonth(ts) === currentMonth) monthTotal += amount;
+
+    addStylist(stylistId, amount);
+    addService(serviceId, amount);
+
+    stylistTopService[stylistId] = stylistTopService[stylistId] || {};
+    stylistTopService[stylistId][serviceId] = (stylistTopService[stylistId][serviceId] || 0) + amount;
+    const monthKey = isoMonth(ts);
+monthlyTotals[monthKey] =
+  (monthlyTotals[monthKey] || 0) + amount;
+
+allTime += amount;
+
+  });
+
+  const serviceRows = Object.entries(byService).map(([key, v]) => ({
+    key,
+    name: serviceLabel(key),
+    gross: v.gross,
+    count: v.count
+  })).sort((a,b)=>b.gross-a.gross);
+
+  const top = serviceRows[0];
+  const bottom = serviceRows[serviceRows.length-1];
+
+  document.getElementById("kpiToday").textContent = money(today);
+  document.getElementById("kpiMonth").textContent = money(monthTotal);
+  document.getElementById("kpiCancelled").textContent = money(cancelledValue);
+
+  // ✅ NO MORE [object Object]
+  document.getElementById("kpiTopService").textContent = top ? safeText(top.name) : "—";
+  document.getElementById("kpiTopServiceSub").textContent = top ? `${money(top.gross)} gross` : "Highest grossing";
+
+  document.getElementById("bestService").textContent = top ? safeText(top.name) : "—";
+  document.getElementById("bestServiceSub").textContent = top ? `${money(top.gross)} gross • ${top.count} services` : "£0 gross";
+
+  document.getElementById("worstService").textContent = bottom ? safeText(bottom.name) : "—";
+  document.getElementById("worstServiceSub").textContent = bottom ? `${money(bottom.gross)} gross • ${bottom.count} services` : "£0 gross";
+
+  const svcTbody = document.querySelector("#serviceRevenueTable tbody");
+  svcTbody.innerHTML = serviceRows.map(r=>`<tr><td>${safeText(r.name)}</td><td>${money(r.gross)}</td><td>${r.count}</td></tr>`).join("")
+    || `<tr><td colspan="3" class="muted">No revenue yet.</td></tr>`;
+ 
+  const stylistRows = Object.entries(byStylist).map(([uid, v])=>({
+    uid,
+    name: stylistProfiles?.[uid]?.name || uid,
+    gross: v.gross,
+    count: v.count
+  })).sort((a,b)=>b.gross-a.gross);
+// SORT MONTHS
+const months = Object.keys(monthlyTotals).sort();
+
+const current = monthlyTotals[months[months.length-1]] || 0;
+const previous = monthlyTotals[months[months.length-2]] || 0;
+
+let growth = 0;
+if(previous > 0){
+  growth = ((current - previous) / previous) * 100;
+}
+
+// ⭐ PROFIT ESTIMATE
+// assume 35% cost (products, rent, utilities)
+// change later if needed
+
+const COST_RATIO = 0.35;
+
+const profit = allTime * (1 - COST_RATIO);
+const loss = cancelledValue;
+
+// Update KPIs
+document.getElementById("kpiAllTime").textContent = money(allTime);
+document.getElementById("kpiLastMonth").textContent = money(previous);
+document.getElementById("kpiProfit").textContent = money(profit);
+document.getElementById("kpiLoss").textContent = money(loss);
+
+document.getElementById("kpiGrowth").textContent =
+  `${growth.toFixed(1)}% vs last month`;
+const ctx = document.getElementById("revenueChart");
+
+if(ctx){
+
+  if(window.revChart){
+    window.revChart.destroy();
+  }
+
+  window.revChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: "Revenue (£)",
+        data: months.map(m=>monthlyTotals[m]),
+        borderWidth: 2,
+        tension: .35
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{ display:false }
+      },
+      scales:{
+        y:{
+          ticks:{
+            callback:(v)=>"£"+v
+          }
+        }
+      }
+    }
+  });
+}
+
+  const styTbody = document.querySelector("#stylistRevenueTable tbody");
+  styTbody.innerHTML = stylistRows.map(r=>`<tr><td>${safeText(r.name)}</td><td>${money(r.gross)}</td><td>${r.count}</td></tr>`).join("")
+    || `<tr><td colspan="3" class="muted">No revenue yet.</td></tr>`;
+
+  const stTbody = document.querySelector("#stylistsTable tbody");
+  const rows = Object.entries(stylistsIndex || {}).map(([uid, s])=>{
+    const approved = (s?.approved === true) ? "Yes" : "No";
+    const perf = byStylist[uid] || {gross:0,count:0};
+
+    const map = stylistTopService[uid] || {};
+    let topKey = null, topGross = -1;
+    Object.entries(map).forEach(([k,g])=>{
+      if (g > topGross){ topGross = g; topKey = k; }
+    });
+    const topSvcName = topKey ? serviceLabel(topKey) : "—";
+    const name = stylistProfiles?.[uid]?.name || s?.publicProfile?.name || uid;
+
+    const actionButtons = `
+  <div class="actions">
+   
+
+    ${s?.approved
+      ? `<button class="btn ghost" data-unapprove="${uid}">Unapprove</button>`
+      : `<button class="btn" data-approve-stylist="${uid}">Approve</button>`
+    }
+
+    <button class="btn danger" data-delete-stylist="${uid}">Delete</button>
+  </div>
+`;
+
+
+return `<tr>
+  <td>${safeText(name)}</td>
+  <td>${approved}</td>
+  <td>${perf.count || 0}</td>
+  <td>${money(perf.gross || 0)}</td>
+  <td>${safeText(topSvcName)}</td>
+  <td>${actionButtons}</td>
+</tr>`;
+
+  });
+
+
+  stTbody.innerHTML = rows.length
+    ? rows.join("")
+    : `<tr><td colspan="6" class="muted">No stylists found.</td></tr>`;
+;
+    // 🔌 wire stylist action buttons
+stTbody.querySelectorAll("[data-approve-stylist]").forEach(btn => {
+  btn.onclick = () =>
+    approveExistingStylist(btn.dataset.approveStylist);
+});
+// ✅ bind Services button clicks
+stTbody.querySelectorAll("[data-manage-services]").forEach(btn => {
+  btn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openServiceManager(btn.dataset.manageServices);
+  };
+});
+
+stTbody.querySelectorAll("[data-unapprove]").forEach(btn => {
+  btn.onclick = () =>
+    unapproveStylist(btn.dataset.unapprove);
+});
+
+stTbody.querySelectorAll("[data-delete-stylist]").forEach(btn => {
+  btn.onclick = () =>
+    deleteStylist(btn.dataset.deleteStylist);
+});
+
+
+}
+
+async function approveExistingStylist(uid){
+  if (!confirm("Approve this stylist?")) return;
+
+  await update(ref(db, `stylists/${uid}`), {
+    approved: true,
+    updatedAt: Date.now()
+  });
+
+  await update(ref(db, `users/${uid}`), {
+    role: "stylist",
+    stylistApproved: true
+  });
+
+  toast("Stylist approved");
+  await refreshAll();
+}
+
+async function unapproveStylist(uid){
+  if (!confirm("Unapprove this stylist?")) return;
+
+  await update(ref(db, `stylists/${uid}`), {
+    approved: false,
+    updatedAt: Date.now()
+  });
+
+  await update(ref(db, `users/${uid}`), {
+    stylistApproved: false
+  });
+
+  toast("Stylist unapproved");
+  await refreshAll();
+}
+
+async function deleteStylist(uid){
+  if (!confirm("⚠️ Permanently delete this stylist?")) return;
+
+  await Promise.all([
+    set(ref(db, `stylists/${uid}`), null),
+    update(ref(db, `users/${uid}`), {
+      role: "client",
+      stylistApproved: null
+    }),
+    set(ref(db, `stylistApplications/${uid}`), null)
+  ]);
+
+  toast("Stylist deleted");
+  await refreshAll();
+}
+
+/* MAIN */
+async function refreshAll(){
+  await loadLookups();
+  await loadAdminGallery();
+  await loadShopAvailability(); // ✅ ADD THIS
+  await Promise.allSettled([
+    loadApplications(),
+    loadReviews(),
+    loadWalkins(),
+    loadRevenue()
+    
+  ]);
+}
+const galleryBtn = document.getElementById("addGalleryItemBtn");
+
+if (galleryBtn) {
+  galleryBtn.onclick = async () => {
+    const file = document.getElementById("galleryImage")?.files[0];
+    const title = document.getElementById("galleryTitle")?.value.trim();
+    const caption = document.getElementById("galleryCaption")?.value.trim();
+
+    if (!file) return toast("Select an image");
+    if (!title) return toast("Add a title");
+
+    const id = `g_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+    const imgRef = sRef(storage, `gallery/${id}`);
+    await uploadBytes(imgRef, file);
+    const imageUrl = await getDownloadURL(imgRef);
+
+    await set(ref(db, `gallery/${id}`), {
+      imageUrl,
+      title,
+      caption,
+      createdAt: Date.now()
+    });
+
+    toast("Gallery item added");
+
+    galleryImage.value = "";
+    galleryTitle.value = "";
+    galleryCaption.value = "";
+
+    loadAdminGallery();
+  };
+}
+
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const token = await user.getIdTokenResult();
+
+  if (!token.claims.admin) {
+    await signOut(auth);
+    window.location.href = "login.html";
+    return;
+  }
+
+  await loadShopAvailability();
+  await ensureAdminStylistNode(user);
+  await refreshAll();
+
+  // ⭐ ALWAYS LAST
+  document.getElementById("whoami").textContent =
+    user.email || "(no email)";
+});
+
+</script>
+
+
+</body>
+</html>

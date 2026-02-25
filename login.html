@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login — Angels Hair Mall</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:#fff;
+  color:#000;
+}
+
+header {
+  position:sticky;
+  top:0;
+  background:#fff;
+  border-bottom:1px solid #eee;
+  z-index:10;
+}
+
+.nav {
+  max-width:1400px;
+  margin:auto;
+  padding:18px 40px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.logo {
+  font-family:Georgia,serif;
+  letter-spacing:2px;
+}
+
+.nav a {
+  margin-left:30px;
+  font-size:13px;
+  text-transform:uppercase;
+  text-decoration:none;
+  color:#000;
+}
+
+section {
+  max-width:1400px;
+  margin:auto;
+  padding:140px 40px;
+}
+
+.login-wrapper {
+  max-width:420px;
+}
+
+h2 {
+  font-family:'Playfair Display',serif;
+  font-size:42px;
+  font-weight:400;
+  margin-bottom:16px;
+}
+
+.subtitle {
+  font-size:14px;
+  color:#555;
+  margin-bottom:50px;
+}
+
+form {
+  display:grid;
+  gap:28px;
+}
+
+.field {
+  position:relative;
+}
+
+input {
+  width:100%;
+  padding:14px 0;
+  border:none;
+  border-bottom:1px solid #000;
+  background:none;
+  font-size:14px;
+}
+
+.toggle {
+  position:absolute;
+  right:0;
+  bottom:14px;
+  font-size:12px;
+  cursor:pointer;
+  user-select:none;
+}
+
+button {
+  padding:16px;
+  border:1px solid #000;
+  background:none;
+  text-transform:uppercase;
+  font-size:13px;
+  cursor:pointer;
+}
+
+button:hover { background:#000; color:#fff; }
+
+button:disabled {
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+.feedback {
+  font-size:13px;
+  opacity:0;
+  transform:translateY(6px);
+  transition:0.3s ease;
+}
+
+.feedback.show {
+  opacity:1;
+  transform:translateY(0);
+}
+
+.links {
+  margin-top:30px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.links a {
+  font-size:13px;
+  text-decoration:none;
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">ANGELS HAIR MALL</div>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="login-wrapper">
+    <h2>Welcome Back</h2>
+    <p class="subtitle">
+      Sign in to manage your bookings and appointments.
+    </p>
+
+    <form id="loginForm">
+
+      <input id="email" type="email" placeholder="Email address" required>
+
+      <div class="field">
+        <input id="password" type="password" placeholder="Password" required>
+        <span class="toggle" id="togglePwd">Show</span>
+      </div>
+
+      <button type="submit" id="loginBtn">Sign In</button>
+
+      <div class="feedback" id="errorMessage"></div>
+
+    </form>
+
+    <div class="links">
+      <a href="signup.html">Create an account</a>
+      <a href="forgot-password.html">Forgot password?</a>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+/* 🔥 Firebase */
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+  messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* DOM */
+const form = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+const errorMessage = document.getElementById("errorMessage");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (loginBtn.disabled) return;
+
+  errorMessage.classList.remove("show");
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in…";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+ try {
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  const user = cred.user;
+
+  // ✅ ADMIN ALWAYS WINS
+  const token = await user.getIdTokenResult();
+
+  if (token.claims.admin === true) {
+    window.location.href = "admin.html";
+    return;
+  }
+// Email verification (admins can bypass if you want; currently admin already returned above)
+if (!user.emailVerified) {
+  window.location.href = "verify-email.html";
+  return;
+}
+
+// Load profile
+const profileSnap = await get(ref(db, `users/${user.uid}`));
+
+if (!profileSnap.exists()) {
+  // User exists in Auth but did not complete OTP/DB write
+  window.location.href = "finish-signup.html";
+  return;
+}
+
+const profile = profileSnap.val();
+
+// Enforce required fields
+const nameOk = profile?.name && String(profile.name).trim().length >= 2;
+const phoneOk = profile?.phone && /^\+\d{8,15}$/.test(String(profile.phone).trim());
+const phoneVerifiedOk = profile?.phoneVerified === true;
+
+// If incomplete, force user to finish profile / phone verification
+if (!nameOk || !phoneOk) {
+  window.location.href = "complete-profile.html";
+  return;
+}
+
+if (!phoneVerifiedOk) {
+  window.location.href = "finish-signup.html";
+  return;
+}
+
+// Role-based routing
+const role = profile?.role ? profile.role : "client";
+if (role === "stylist") {
+  window.location.href = "stylist-dashboard.html";
+} else {
+  window.location.href = "booking.html";
+}
+
+// 🔁 fallback to role-based routing
+
+
+} catch (err) {
+  loginBtn.disabled = false;
+  loginBtn.textContent = "Sign In";
+
+  if (err.code === "auth/wrong-password") {
+    errorMessage.textContent = "Incorrect password";
+  } else if (err.code === "auth/user-not-found") {
+    errorMessage.textContent = "No account found with this email";
+  } else {
+    errorMessage.textContent = err.message.replace("Firebase:", "");
+  }
+
+  errorMessage.classList.add("show");
+}
+
+});
+
+/* Password toggle */
+const toggle = document.getElementById("togglePwd");
+toggle.addEventListener("click", () => {
+  const input = document.getElementById("password");
+  input.type = input.type === "password" ? "text" : "password";
+  toggle.textContent = input.type === "password" ? "Show" : "Hide";
+});
+</script>
+
+</body>
+</html>

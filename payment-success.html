@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Payment Success</title></head>
+<body style="font-family:Arial;max-width:600px;margin:50px auto;padding:20px;">
+  <h2>Payment successful ✅</h2>
+  <p id="msg">Loading your booking…</p>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const bookingId = params.get("bookingId");
+    document.getElementById("msg").textContent =
+      bookingId ? `Booking reference: ${bookingId}` : "Missing booking reference.";
+  </script>
+
+  <p><a href="booking.html">Back to booking</a></p>
+</body>
+</html>

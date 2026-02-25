@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stylist Dashboard — Angels Hair Mall</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --bg:#ffffff;
+  --ink:#0b0b0b;
+  --muted:#6f6f6f;
+  --line:#e9e9e9;
+  --soft:#f7f7f7;
+  --card:#ffffff;
+  --shadow: 0 18px 50px rgba(0,0,0,.06);
+  --radius: 18px;
+  --gold:#b38b2e; /* subtle luxe accent */
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  letter-spacing:.01em;
+}
+
+/* ====== HEADER ====== */
+header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(130%) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav{
+  max-width:1440px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:240px;
+}
+.brand-title{
+  font-family:"Playfair Display",serif;
+  font-weight:500;
+  letter-spacing:.18em;
+  font-size:14px;
+  text-transform:uppercase;
+}
+.badge{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+}
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav a{
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  text-decoration:none;
+  color:var(--ink);
+  padding:10px 10px;
+  border-radius:10px;
+}
+.nav a:hover{ background:var(--soft); }
+.icon-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:999px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.icon-btn:hover{ border-color:#d8d8d8; }
+.icon-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* ====== LAYOUT ====== */
+.wrap{
+  max-width:1440px;
+  margin:0 auto;
+  padding:34px 24px 80px;
+}
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  padding:22px 0 26px;
+  border-bottom:1px solid var(--line);
+}
+h1{
+  margin:0;
+  font-family:"Playfair Display",serif;
+  font-weight:400;
+  font-size:42px;
+  letter-spacing:.02em;
+}
+.sub{
+  margin:10px 0 0;
+  max-width:640px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+.right-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:flex-end;
+}
+.pill{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:999px;
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--muted);
+}
+.pill strong{ color:var(--ink); font-weight:500; }
+
+/* ====== TABS ====== */
+.tabs{
+  margin-top:24px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.tab{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:999px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.tab[aria-selected="true"]{
+  border-color:#d8d8d8;
+  box-shadow:0 10px 24px rgba(0,0,0,.06);
+}
+.tab:hover{ background:var(--soft); }
+
+.grid{
+  margin-top:24px;
+  display:grid;
+  grid-template-columns: 1fr;
+
+  gap:18px;
+  align-items:start;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card-pad{ padding:18px; }
+.card h2{
+  margin:0;
+  font-family:"Playfair Display",serif;
+  font-weight:400;
+  font-size:26px;
+}
+.card p.small{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+/* ====== BOOKING LIST ====== */
+.list{ margin-top:14px; }
+.booking{
+  padding:18px 0;
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns: 1fr 160px;
+  gap:24px;
+  align-items:start;
+}
+
+.booking:first-child{ border-top:none; }
+.booking-left{
+  min-width:0;
+  max-width:100%;
+}
+
+.booking-title{
+  font-family:"Playfair Display",serif;
+  font-size:18px;
+  font-weight:400;
+  margin:0;
+}
+.booking-meta{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+}
+.kicker{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  margin-top:10px;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:var(--line);
+  margin-top:-1px;
+}
+.dot.confirmed{ background:#1f7a3f; }
+.dot.rejected{ background:#b00020; }
+.dot.pending{ background:var(--gold); }
+
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:flex-end;
+}
+
+.link-btn{
+  border:none;
+  background:none;
+  cursor:pointer;
+  padding:0;
+  color:var(--ink);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  position:relative;
+}
+.link-btn::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-4px;
+  height:1px;
+  width:0;
+  background:var(--ink);
+  transition:.25s ease;
+}
+.link-btn:hover::after{ width:100%; }
+.link-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* ====== FORMS ====== */
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+@media (max-width: 880px){
+  .grid{ grid-template-columns:1fr; }
+  .row{ grid-template-columns:1fr; }
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+label{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+input, select{
+  width:100%;
+  padding:12px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  outline:none;
+  font-size:14px;
+}
+input:focus, select:focus{ border-color:#cfcfcf; }
+.primary{
+  margin-top:14px;
+  width:100%;
+  padding:12px 14px;
+  border-radius:999px;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:#fff;
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.primary:hover{ filter:brightness(1.02); }
+.secondary{
+  margin-top:10px;
+  width:100%;
+  padding:12px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.secondary:hover{ background:var(--soft); }
+.toast{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+  opacity:0;
+  transform:translateY(6px);
+  transition:.25s ease;
+}
+.toast.show{ opacity:1; transform:translateY(0); }
+input:focus, select:focus{ border-color:#cfcfcf; }
+.primary{
+  margin-top:14px;
+  width:100%;
+  padding:12px 14px;
+  border-radius:999px;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:#fff;
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.primary:hover{ filter:brightness(1.02); }
+.secondary{
+  margin-top:10px;
+  width:100%;
+  padding:12px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.secondary:hover{ background:var(--soft); }
+.toast{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+  opacity:0;
+  transform:translateY(6px);
+  transition:.25s ease;
+}
+.toast.show{ opacity:1; transform:translateY(0); }
+
+/* ====== SERVICE PICKER ====== */
+.service-list{
+  margin-top:14px;
+  border-top:1px solid var(--line);
+}
+.svc{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.svc:last-child{ border-bottom:none; }
+.svc-left{
+  min-width:0;
+}
+.svc-name{
+  font-size:14px;
+  margin:0;
+}
+.svc-meta{
+  margin:4px 0 0;
+  font-size:12px;
+  color:var(--muted);
+}
+.chk{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.chk input{ width:18px; height:18px; }
+
+/* ====== AVAILABILITY ====== */
+.days{
+  margin-top:14px;
+  border-top:1px solid var(--line);
+}
+.day{
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.day:last-child{ border-bottom:none; }
+.day-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.day-head strong{
+  font-size:13px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+.switch{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+  color:var(--muted);
+}
+.switch input{ width:18px; height:18px; }
+.day-body{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+}
+@media (max-width: 520px){
+  .day-body{ grid-template-columns:1fr; }
+  h1{ font-size:34px; }
+}
+
+/* ====== BLOCKED SLOTS ====== */
+.blocked-list{
+  margin-top:12px;
+  border-top:1px solid var(--line);
+}
+.blocked-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.blocked-item:last-child{ border-bottom:none; }
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:12px;
+  color:var(--muted);
+}
+/* ===== PHONE INPUT (RESPONSIVE) ===== */
+.phone-row{
+  display:grid;
+  grid-template-columns: 1fr;
+
+  gap:10px;
+  width:100%;
+}
+
+/* Mobile polish */
+@media (max-width: 520px){
+  .phone-row{
+    grid-template-columns: 1fr;
+  }
+
+  .phone-row select{
+    width:100%;
+  }
+}
+
+/* ====== CHARTS ====== */
+.chart-wrap{
+  margin-top:14px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+}
+canvas{ max-width:100%; }
+
+/* ====== VIEW SWITCHING ====== */
+.view{ display:none; }
+.view.active{ display:block; }
+/* ====== WELCOME BLOCK ====== */
+.welcome {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.welcome-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.welcome-label {
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.welcome-name {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.welcome-meta {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: .02em;
+}
+/* ===== PROFILE CARD ===== */
+.profile-box{
+  margin-top:16px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.avatar{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  border:1px dashed var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background:var(--soft);
+  transition:.2s ease;
+}
+
+.avatar:hover{
+  background:#ececec;
+}
+
+.avatar-plus{
+  font-size:26px;
+  color:var(--muted);
+  line-height:1;
+}
+
+.profile-meta{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.profile-meta strong{
+  font-size:15px;
+  font-weight:500;
+  color:var(--ink);
+}
+
+.profile-meta span{
+  font-size:13px;
+  color:var(--muted);
+}
+/* ===== PROFILE CARD (IMPROVED) ===== */
+.profile-card{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.profile-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.profile-hint{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.profile-main{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--soft);
+}
+
+.avatar{
+  width:78px;
+  height:78px;
+  border-radius:50%;
+  border:1px dashed var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  cursor:pointer;
+  transition:.25s ease;
+  flex-shrink:0;
+}
+
+.avatar:hover{
+  border-color:#cfcfcf;
+  background:#f0f0f0;
+}
+
+.avatar-plus{
+  font-size:28px;
+  color:var(--muted);
+  line-height:1;
+}
+
+.profile-meta{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.profile-name{
+  font-family:"Playfair Display", serif;
+  font-size:20px;
+  font-weight:400;
+  color:var(--ink);
+}
+
+.profile-role{
+  font-size:13px;
+  color:var(--muted);
+  letter-spacing:.02em;
+}
+
+.profile-footer{
+  font-size:12px;
+  color:var(--muted);
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: #111;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-danger {
+  background: #c0392b;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.more-actions summary {
+  cursor: pointer;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.more-menu {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.more-menu button {
+  background: #f4f4f4;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 13px;
+}
+#bookingsList {
+  max-width: 900px;
+  margin: 0 auto;
+}
+/* =====================
+   GUCCI CONTENT RAIL
+   ===================== */
+.page {
+  display: flex;
+  justify-content: center;
+}
+
+.page-inner {
+  width: 100%;
+  max-width: 1100px;   /* Gucci sweet spot */
+  padding: 0 24px;
+}
+/* ===== STATUS FILTER (BOOKINGS) ===== */
+.status-filters{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:12px 0 6px;
+}
+
+.status-btn{
+  appearance:none;
+  border:1px solid var(--line);
+  background:#fff;
+  padding:8px 16px;
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  cursor:pointer;
+  color:var(--muted);
+  transition:all .2s ease;
+}
+
+/* Hover (soft, luxury) */
+.status-btn:hover{
+  background:var(--soft);
+  color:var(--ink);
+}
+
+/* Active base */
+.status-btn.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
+}
+
+/* Status accents (very subtle) */
+.status-btn.pending.active{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:#111;
+}
+
+.status-btn.confirmed.active{
+  background:#1f7a3f;
+  border-color:#1f7a3f;
+  color:#fff;
+}
+
+.status-btn.cancelled.active{
+  background:#b00020;
+  border-color:#b00020;
+  color:#fff;
+}
+.btn-primary,
+.btn-danger{
+  width:120px;
+  text-align:center;
+  font-size:11px;
+  letter-spacing:.14em;
+  border-radius:10px;
+}
+/* Slim down file input (Choose file / No file chosen) */
+input[type="file"] {
+  border: 1px solid #e6e6e6;   /* lighter line */
+  border-radius: 10px;        /* softer corners */
+  padding: 8px 10px;          /* less height */
+  font-size: 13px;
+  background: #fff;
+}
+
+/* Optional: even cleaner on focus */
+input[type="file"]:focus {
+  border-color: #cfcfcf;
+  outline: none;
+}
+/* Make file input compact (width only) */
+input[type="file"] {
+  width: auto;          /* stop full-width stretch */
+  max-width: 210px;     /* control how wide it can be */
+}
+.profile-meta {
+  max-width: 320px;   /* controls width of name area */
+}
+
+.profile-footer {
+  max-width: 320px;   /* match the name width */
+}
+.profile-tip {
+  display: block;
+  font-size: 13px;
+  color: #8a8a8a;
+  line-height: 1.45;
+}
+.profile-name {
+  font-size: 18px;
+}
+
+.profile-role {
+  margin-top: 2px;
+}
+
+.profile-footer {
+  margin-top: 6px; /* pulls helper text closer */
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-left:8px;
+  padding:4px 8px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  background:#fff;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <div class="brand-title">ANGELS HAIR MALL</div>
+      <div class="badge">Stylist</div>
+    </div>
+
+    <div class="nav-actions">
+      <a href="index.html">Home</a>
+      <button class="icon-btn" id="refreshBtn" type="button">Refresh</button>
+      <button class="icon-btn" id="logoutBtn" type="button">Logout</button>
+      <button class="icon-btn" id="adminBtn" type="button">Admin</button>
+
+    </div>
+  </div>
+  
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div>
+      <h1>Dashboard</h1>
+      <div class="welcome">
+  <div class="welcome-line">
+    <span class="welcome-label">Welcome back</span>
+    <span class="welcome-name" id="welcomeName">—</span>
+  </div>
+  <div class="welcome-meta" id="welcomeMeta">—</div>
+</div>
+
+
+      <p class="sub">
+        Manage bookings, choose services you offer (shown to clients), and set your availability + blocked slots.
+      </p>
+    </div>
+    <div class="right-meta">
+      <div class="pill">Signed in as <strong id="whoami">—</strong></div>
+      <div class="pill">Role <strong id="rolePill">—</strong></div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab" role="tab" aria-selected="true" data-view="bookingsView">Bookings</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="servicesView">My Services</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="availabilityView">Availability</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="analyticsView">Analytics</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="walkinsView">Walk-ins</button>
+    
+  </div>
+<div class="card">
+  <div class="card-pad profile-card">
+
+    <div class="profile-header">
+      <h2>Your Profile</h2>
+      <span class="profile-hint">Visible to clients</span>
+    </div>
+
+    <div class="profile-main">
+     <div class="avatar" id="profileAvatar">
+  <span class="avatar-plus">+</span>
+</div>
+<input type="file" id="profilePhotoInput" accept="image/*">
+
+
+
+      <div class="profile-meta">
+        <div class="profile-name" id="profileName">Your name</div>
+        <div class="profile-role" id="profileRole">Stylist</div>
+        <div class="field" style="margin-top:12px">
+        
+ 
+
+
+  
+
+
+      </div>
+    </div>
+
+    <div class="profile-footer">
+      <span class="profile-tip">
+        A clear photo helps clients trust and book faster.
+      </span>
+    </div>
+
+  </div>
+</div>
+<!-- ===== SMS NOTIFICATIONS ===== -->
+<div class="card">
+  <div class="card-pad">
+    <h2>SMS Notifications</h2>
+    <p class="small">
+      This number is used to notify you instantly when a booking is confirmed.
+      Only you can see and change this.
+    </p>
+
+    <div class="row">
+      <div class="field">
+        <label>Country code</label>
+        <select id="countryCode">
+          <option value="+44">🇬🇧 United Kingdom (+44)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Mobile number</label>
+        <input
+          id="stylistPhone"
+          placeholder="7912345678"
+          inputmode="numeric"
+        />
+      </div>
+    </div>
+
+    <button class="primary" id="savePhoneBtn" type="button">
+      Save SMS Number
+    </button>
+
+    <div class="toast" id="phoneToast"></div>
+  </div>
+</div>
+
+  <!-- ===================== BOOKINGS ===================== -->
+  <div class="grid view active" id="bookingsView">
+    <div class="card">
+      <div class="card-pad">
+       <h2>My Bookings</h2>
+      <div class="status-filters">
+ <button class="status-btn filter-btn pending active" data-status="pending">Pending</button>
+<button class="status-btn filter-btn confirmed" data-status="confirmed">Confirmed</button>
+<button class="status-btn filter-btn pending" data-status="awaiting_payment">Awaiting deposit</button>
+<button class="status-btn filter-btn cancelled" data-status="cancelled">Cancelled</button>
+
+</div>
+
+
+
+
+        <div class="list" id="bookingsList"></div>
+        <div class="toast" id="bookingsToast"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-pad">
+        <h2>Quick Actions</h2>
+        <p class="small">Keep your profile clean and up to date.</p>
+
+        <button class="secondary" id="goServicesBtn" type="button">Choose Services</button>
+        <button class="secondary" id="goAvailabilityBtn" type="button">Set Availability</button>
+        <div class="toast" id="quickToast"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SERVICES ===================== -->
+  <div class="grid view" id="servicesView">
+    <div class="card">
+      <div class="card-pad">
+      <h2>Request Services</h2>
+
+<p class="small">
+  Select the services you would like to offer.
+  These will be reviewed by admin before appearing on your booking page.
+</p>
+
+<p class="small">
+  Requested services will show as <strong>pending</strong> until approved by admin.
+</p>
+<p class="small" id="servicesLockedMsg" style="display:none">
+  Service requests are currently managed by admin.
+</p>
+
+
+        <div class="row">
+          <div class="field">
+            <label>Search services</label>
+            <input id="serviceSearch" placeholder="e.g. Faux Locs, Beard Trim…" />
+          </div>
+          <div class="field">
+            <label>Category filter</label>
+            <select id="serviceCategory">
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="service-list" id="serviceList"></div>
+
+      <button class="primary" id="saveServicesBtn">Request Services</button>
+
+        <div class="toast" id="servicesToast"></div>
+
+        <!-- Data model note (for your Firebase DB):
+          /serviceOptions/{serviceId} = { name, category, price, durationMins }
+          /stylists/{uid}/services/{serviceId} = true
+        -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-pad">
+       <h2>What clients will see</h2>
+<p class="small">
+  Clients will only see the services you select here when they book with you.
+</p>
+<p class="small">
+  If a service is not selected, it will not appear on your booking page.
+</p>
+<p class="small">
+  You can update this list at any time — changes take effect immediately.
+</p>
+
+
+        <div class="chart-wrap">
+          <p class="small" style="margin:0">
+            Tip: If “Sign In…” hangs on login, it’s often because your DB rules block reading
+            <span class="mono">/users/&lt;uid&gt;</span> or <span class="mono">/stylists/&lt;uid&gt;</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== AVAILABILITY ===================== -->
+  <div class="grid view" id="availabilityView">
+    <div class="card">
+      <div class="card-pad">
+        <h2>Weekly Availability</h2>
+        <p class="small">
+          Set working hours per day and slot length. Clients can only book within enabled days/times.
+        </p>
+
+        <div class="days" id="daysContainer"></div>
+
+        <button class="primary" id="saveAvailabilityBtn" type="button">Save Availability</button>
+        <div class="toast" id="availabilityToast"></div>
+
+        <!-- Data model note:
+          /stylists/{uid}/availability/mon = { enabled, start, end, slotMins }
+        -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-pad">
+        <h2>Blocked Slots</h2>
+        <p class="small">
+          Block specific date/time slots (holidays, breaks, fully booked windows). These should be excluded on the booking page.
+        </p>
+
+        <div class="row">
+  <div class="field">
+    <label>Date</label>
+    <input id="blockDate" type="date" />
+  </div>
+
+  <div class="field">
+    <label>Start time</label>
+    <input id="blockStartTime" type="time" />
+  </div>
+
+  <div class="field">
+    <label>End time</label>
+    <input id="blockEndTime" type="time" />
+  </div>
+</div>
+
+<button class="secondary" id="addBlockedBtn" type="button">Add Blocked Time Range</button>
+
+
+        <div class="blocked-list" id="blockedList"></div>
+        <div class="toast" id="blockedToast"></div>
+
+        <!-- Data model note:
+          /stylists/{uid}/blockedSlots/2025-12-28/14:30 = true
+        -->
+      </div>
+    </div>
+    </div>
+    <!-- ===================== WALK-INS ===================== -->
+<div class="grid view" id="walkinsView">
+  <div class="card">
+    <div class="card-pad">
+      <h2>Add Walk-in</h2>
+      <p class="small">
+        Create an in-shop walk-in booking. This saves into <span class="mono">/bookings</span> with <span class="mono">walkIn:true</span>.
+      </p>
+
+      <div class="row">
+        <div class="field">
+          <label>Client name</label>
+          <input id="walkinClientName" placeholder="e.g. Sarah" />
+        </div>
+
+        <div class="field">
+          <label>Client phone (optional)</label>
+          <input id="walkinClientPhone" placeholder="e.g. 079..." />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Date</label>
+          <input id="walkinDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Start time</label>
+          <input id="walkinStart" type="time" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Search services</label>
+          <input id="walkinServiceSearch" placeholder="e.g. Faux Locs…" />
+        </div>
+        <div class="field">
+          <label>Category filter</label>
+          <select id="walkinServiceCategory">
+            <option value="all">All</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="service-list" id="walkinServiceList"></div>
+
+      <div class="chart-wrap">
+        <p class="small" style="margin:0">
+          <strong>Summary:</strong>
+          <span id="walkinSummary">No services selected.</span>
+        </p>
+      </div>
+
+      <button class="primary" id="saveWalkinBtn" type="button">Save Walk-in</button>
+      <button class="secondary" id="refreshWalkinServicesBtn" type="button">Import latest services</button>
+
+      <div class="toast" id="walkinToast"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-pad">
+      <h2>Recent Walk-ins</h2>
+      <p class="small">Saved walk-ins for you (from bookings).</p>
+      <div class="list" id="walkinsList"></div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- ===================== ANALYTICS ===================== -->
+  <div class="grid view" id="analyticsView">
+    <div class="card">
+      <div class="card-pad">
+        <h2>Service Popularity</h2>
+        <p class="small">Based on your bookings.</p>
+        <div class="chart-wrap">
+          <canvas id="serviceChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-pad">
+        <h2>Monthly Bookings</h2>
+        <p class="small">Based on booking creation date.</p>
+        <div class="chart-wrap">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { getMessaging, getToken, onMessage } from
+  "https://www.gstatic.com/firebasejs/12.7.0/firebase-messaging.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+  update,
+  remove,
+  query,
+  orderByChild,
+  equalTo
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { push } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+
+async function requestService(service) {
+  const reqRef = ref(db, "serviceRequests");
+
+  await push(reqRef, {
+    stylistId: currentUser.uid,
+    stylistName: profileName,
+    serviceId: service.id,
+    serviceName: service.name,
+    price: service.price,
+    duration: service.duration,
+    status: "pending",
+    createdAt: Date.now()
+  });
+
+  alert("Service requested. Awaiting admin approval.");
+}
+
+
+/* ===================== FIREBASE ===================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+storageBucket: "angelshairmall.appspot.com",
+ messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const messaging = getMessaging(app);
+
+async function registerPushNotifications(user){
+  try{
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+
+    const token = await getToken(messaging, {
+      vapidKey: "BGKgZXapu8Z5RD03hFBAAoMQQqIeAkAHvl1YtyzurqUdgyXzqtuQKssoqnDyT9ZZfvjoFSDJcAQN39iTOMzO7oM"
+    });
+
+    if (!token) return;
+
+    await update(ref(db, `users/${user.uid}/fcmTokens/${token}`), true);
+    console.log("FCM token saved");
+  }catch(err){
+    console.warn("Push registration failed", err);
+  }
+}
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", "angels_gallery");
+
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dln4u67up/auto/upload",
+    { method: "POST", body: fd }
+  );
+
+  if (!res.ok) throw new Error("Upload failed");
+
+  const json = await res.json();
+  return json.secure_url;
+}
+
+/* ===================== DOM ===================== */
+const whoami = document.getElementById("whoami");
+const rolePill = document.getElementById("rolePill");
+
+const bookingsList = document.getElementById("bookingsList");
+const refreshBtn = document.getElementById("refreshBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+const goServicesBtn = document.getElementById("goServicesBtn");
+const goAvailabilityBtn = document.getElementById("goAvailabilityBtn");
+
+const bookingsToast = document.getElementById("bookingsToast");
+const quickToast = document.getElementById("quickToast");
+const servicesToast = document.getElementById("servicesToast");
+const availabilityToast = document.getElementById("availabilityToast");
+const blockedToast = document.getElementById("blockedToast");
+
+const serviceSearch = document.getElementById("serviceSearch");
+const serviceCategory = document.getElementById("serviceCategory");
+const serviceList = document.getElementById("serviceList");
+const saveServicesBtn = document.getElementById("saveServicesBtn");
+
+const daysContainer = document.getElementById("daysContainer");
+const saveAvailabilityBtn = document.getElementById("saveAvailabilityBtn");
+const adminBtn = document.getElementById("adminBtn");
+const stylistPhoneInput = document.getElementById("stylistPhone");
+const countryCodeSelect = document.getElementById("countryCode");
+const savePhoneBtn = document.getElementById("savePhoneBtn");
+const phoneToast = document.getElementById("phoneToast");
+
+
+
+const blockDate = document.getElementById("blockDate");
+const blockStartTime = document.getElementById("blockStartTime");
+const blockEndTime = document.getElementById("blockEndTime");
+const addBlockedBtn = document.getElementById("addBlockedBtn");
+const blockedList = document.getElementById("blockedList");
+
+const profileAvatar = document.getElementById("profileAvatar");
+const profilePhotoInput = document.getElementById("profilePhotoInput");
+// WALKINS DOM
+const walkinClientName = document.getElementById("walkinClientName");
+const walkinClientPhone = document.getElementById("walkinClientPhone");
+const walkinDate = document.getElementById("walkinDate");
+const walkinStart = document.getElementById("walkinStart");
+
+const walkinServiceSearch = document.getElementById("walkinServiceSearch");
+const walkinServiceCategory = document.getElementById("walkinServiceCategory");
+const walkinServiceList = document.getElementById("walkinServiceList");
+const walkinSummary = document.getElementById("walkinSummary");
+
+const saveWalkinBtn = document.getElementById("saveWalkinBtn");
+const refreshWalkinServicesBtn = document.getElementById("refreshWalkinServicesBtn");
+const walkinToast = document.getElementById("walkinToast");
+
+const walkinsList = document.getElementById("walkinsList");
+
+profilePhotoInput.addEventListener("change", async () => {
+  const file = profilePhotoInput.files[0];
+  const user = auth.currentUser;
+  if (!file || !user) return;
+
+  try {
+    const photoURL = await uploadToCloudinary(file);
+
+    await update(ref(db, `stylists/${user.uid}/publicProfile`), {
+      photoURL,
+      updatedAt: Date.now()
+    });
+
+    // Update UI instantly
+    const avatar = document.getElementById("profileAvatar");
+    avatar.style.backgroundImage = `url('${photoURL}')`;
+    avatar.style.backgroundSize = "cover";
+    avatar.style.backgroundPosition = "center";
+
+    toast(profileToast, "Profile photo updated");
+  } catch (err) {
+    console.error(err);
+    toast(profileToast, "Upload failed");
+  }
+});
+
+/* ===================== STATE ===================== */
+let currentStylistId = null;
+let currentUserEmail = null;
+let allBookings = [];   // holds all bookings for filtering
+let activeStatus = "pending"; // default filter
+
+let serviceOptions = [];         // [{id,name,category,price,durationMins}]
+let selectedServices = new Set(); // serviceId
+let availability = {};           // { mon:{enabled,start,end,slotMins}, ... }
+let blockedSlots = {};           // { "2025-12-28": { "14:30": true } }
+
+let serviceChartInstance = null;
+let monthlyChartInstance = null;
+let approvedServices = new Set();
+// WALKINS STATE
+let walkinSelected = new Set(); // holds serviceIds
+
+function todayISO(){
+  return new Date().toISOString().slice(0,10);
+}
+function nowHHMM(){
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+function moneyGBP(n){
+  const num = Number(n || 0);
+  if (!Number.isFinite(num)) return "£0";
+  return `£${num.toFixed(2).replace(/\.00$/,"")}`;
+}
+function addMins(timeHHMM, mins){
+  const [h,m] = timeHHMM.split(":").map(Number);
+  const total = h*60 + m + Number(mins || 0);
+  const nh = Math.floor(total/60);
+  const nm = total%60;
+  return `${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`;
+}
+function getSvcById(id){
+  return serviceOptions.find(s => s.id === id);
+}
+function walkinTotals(){
+  const picked = Array.from(walkinSelected).map(getSvcById).filter(Boolean);
+  const totalMins = picked.reduce((sum,s)=>sum + Number(s.durationMins||0), 0);
+  const totalPrice = picked.reduce((sum,s)=>sum + Number(s.price||s.priceFrom||0), 0);
+  return { picked, totalMins, totalPrice };
+}
+/* ===================== UTIL ===================== */
+function toast(el, msg){
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove("show"), 2400);
+}
+function statusDotClass(status){
+  const s = (status || "").toLowerCase();
+  if (s === "confirmed") return "confirmed";
+  if (s === "cancelled") return "rejected";
+  // awaiting_payment should look like pending
+  return "pending";
+}
+
+function safeText(s){
+  return String(s ?? "").replace(/[<>&"]/g, c => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c]));
+}
+function monthKeyFromCreatedAt(createdAt){
+  const d = new Date(createdAt || Date.now());
+  return d.toLocaleString("default", { month:"short" });
+}
+
+/* ===================== TABS ===================== */
+const tabs = Array.from(document.querySelectorAll(".tab"));
+function showView(id){
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  tabs.forEach(t => t.setAttribute("aria-selected", t.dataset.view === id ? "true":"false"));
+}
+tabs.forEach(t => t.addEventListener("click", ()=> showView(t.dataset.view)));
+goServicesBtn.addEventListener("click", ()=> showView("servicesView"));
+goAvailabilityBtn.addEventListener("click", ()=> showView("availabilityView"));
+
+/* ===================== AUTH GUARD ===================== */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentStylistId = user.uid;
+  currentUserEmail = user.email || "(no email)";
+  whoami.textContent = currentUserEmail;
+
+  try {
+    /* ===================== LOAD USER ===================== */
+    const userSnap = await get(ref(db, `users/${user.uid}`));
+
+    if (!userSnap.exists()) {
+   console.error("User record missing. Redirecting to signup.");
+   window.location.href = "signup.html";
+   return;
+}
+
+    const userData = userSnap.val();
+const stylistSnap = await get(ref(db, `stylists/${user.uid}`));
+if (stylistSnap.exists()) {
+  const phone = stylistSnap.val().phone || "";
+
+  if (phone.startsWith("+44")) {
+    countryCodeSelect.value = "+44";
+    stylistPhoneInput.value = phone.replace("+44", "");
+  }
+}
+
+
+    /* ===================== ADMIN CLAIM ===================== */
+    const token = await user.getIdTokenResult();
+    const isAdmin = token.claims.admin === true;
+
+    /* ===================== ADMIN BUTTON ===================== */
+    if (isAdmin) {
+      adminBtn.style.display = "inline-flex";
+      adminBtn.onclick = () => {
+        window.location.href = "admin.html";
+      };
+    } else {
+      adminBtn.style.display = "none";
+    }
+
+    /* ===================== ROLE GUARD ===================== */
+    const role = userData.role || "stylist";
+
+    // allow stylist + admin
+    if (role !== "stylist" && !isAdmin) {
+      window.location.href = "booking.html";
+      return;
+    }
+
+    rolePill.textContent = isAdmin ? "admin · stylist" : role;
+
+    /* ===================== PUBLIC PROFILE (WRITE ONCE) ===================== */
+  /* ===================== PUBLIC PROFILE (SAFE MERGE – DO NOT OVERWRITE PHOTO) ===================== */
+const publicProfileRef = ref(db, `stylists/${user.uid}/publicProfile`);
+const publicSnap = await get(publicProfileRef);
+
+const existing = publicSnap.exists() ? publicSnap.val() : {};
+
+await update(publicProfileRef, {
+ name:
+  (!existing.name || existing.name === "Stylist")
+    ? (userData.displayName || userData.name || "Stylist")
+    : existing.name,
+
+  profession:
+    existing.profession ||
+    userData.profession ||
+    "Hair Stylist",
+
+  // 🔒 SINGLE SOURCE OF TRUTH
+  photoURL: existing.photoURL || "",
+
+  updatedAt: Date.now(),
+
+  ...(existing.createdAt ? {} : { createdAt: Date.now() })
+});
+
+    /* ===================== UI TEXT (SINGLE SOURCE) ===================== */
+    const name =
+      userData.displayName?.trim() ||
+      userData.name ||
+      "Stylist";
+
+    const profession =
+      userData.profession ||
+      "Hair Stylist";
+
+    welcomeName.textContent = name;
+    welcomeMeta.textContent = profession;
+    profileName.textContent = name;
+    profileRole.textContent = profession;
+
+ /* ===================== AVATAR (SINGLE SOURCE OF TRUTH) ===================== */
+const photo = stylistSnap.val()?.publicProfile?.photoURL || "";
+
+if (photo) {
+  profileAvatar.style.backgroundImage = `url(${photo})`;
+  profileAvatar.style.backgroundSize = "cover";
+  profileAvatar.style.backgroundPosition = "center";
+  profileAvatar.innerHTML = "";
+} else {
+  profileAvatar.style.backgroundImage = "";
+  profileAvatar.innerHTML = `<span class="avatar-plus">+</span>`;
+}
+
+
+
+
+
+    /* ===================== LOAD DASHBOARD ===================== */
+    await bootstrapAll();
+    toast(quickToast, "Loaded.");
+
+  } catch (err) {
+    console.error(err);
+    toast(
+      quickToast,
+      "Access blocked. Check database rules for /users/<uid> and /stylists/<uid>."
+    );
+  }
+  await registerPushNotifications(user);
+});
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeStatus = btn.dataset.status;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    loadBookings();
+  });
+});
+
+
+logoutBtn.addEventListener("click", async ()=>{
+  try{
+    await signOut(auth);
+    window.location.href = "login.html";
+  }catch(e){
+    console.error(e);
+    toast(quickToast, "Logout failed.");
+  }
+});
+
+refreshBtn.addEventListener("click", async ()=>{
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = "Refreshing…";
+  await bootstrapAll();
+  refreshBtn.disabled = false;
+  refreshBtn.textContent = "Refresh";
+});
+
+/* ===================== BOOTSTRAP ===================== */
+async function bootstrapAll(){
+  await Promise.all([
+    loadBookings(),
+    loadServiceOptionsAndSelections(),
+    loadAvailability(),
+    loadBlockedSlots(),
+    loadWalkinsList()
+  ]);
+  renderServicePicker();
+  renderAvailabilityUI();
+  renderBlockedUI();
+
+  // init walk-ins defaults + UI
+  if (walkinDate) walkinDate.value = todayISO();
+  if (walkinStart) walkinStart.value = nowHHMM();
+  renderWalkinServicePicker();
+}
+/* ===================== BOOKINGS ===================== */
+async function loadBookings() {
+  bookingsList.innerHTML = `<div class="mono">Loading…</div>`;
+
+  try {
+    const q = query(
+      ref(db, "bookings"),
+      orderByChild("stylistId"),
+      equalTo(currentStylistId)
+    );
+    const snap = await get(q);
+
+    bookingsList.innerHTML = "";
+    if (!snap.exists()) {
+      bookingsList.innerHTML = `<div class="mono">No bookings yet.</div>`;
+      renderCharts({});
+      return;
+    }
+
+    const bookings = snap.val();
+    const serviceCount = {};
+    const monthlyCount = {};
+    const STATUS_PRIORITY = {
+  awaiting_payment: 0,
+  pending: 1,
+  confirmed: 2,
+  rejected: 3,
+  expired: 4,
+  cancelled: 5
+};
+
+    // Convert object to array
+    const allBookings = Object.entries(bookings).map(([id, b]) => ({
+      id,
+      ...b
+    }));
+
+    // Filter by activeStatus
+    const filtered = allBookings
+  .filter(b => {
+    const st = (b.status || "pending").toLowerCase();
+
+    if (activeStatus === "pending") {
+      // show both normal pending + awaiting deposit
+      return st === "pending" || st === "awaiting_payment";
+    }
+
+    return st === activeStatus;
+  })
+      .sort((a, b) => {
+        const sa = STATUS_PRIORITY[a.status] ?? 99;
+        const sb = STATUS_PRIORITY[b.status] ?? 99;
+        return sa !== sb
+          ? sa - sb
+          : (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+    if (!filtered.length) {
+      bookingsList.innerHTML = `<div class="mono">No ${activeStatus} bookings.</div>`;
+      return;
+    }
+
+    filtered.forEach(b => {
+      const servicesArr = Array.isArray(b.services) ? b.services : [];
+      const service = servicesArr.length
+        ? servicesArr.map(s => s.name).join(" + ")
+        : (b.service || "Service");
+
+      const date = b.date || "—";
+      const time =
+        b.startTime && b.endTime
+          ? `${b.startTime} – ${b.endTime}`
+          : (b.time || "—");
+
+      const status = b.status || "pending";
+      const clientName = b.clientName || b.name || "";
+
+      // Count for charts
+      if (servicesArr.length) {
+        servicesArr.forEach(s => {
+          serviceCount[s.name] = (serviceCount[s.name] || 0) + 1;
+        });
+      } else {
+        serviceCount[service] = (serviceCount[service] || 0) + 1;
+      }
+      const mk = monthKeyFromCreatedAt(b.createdAt);
+      monthlyCount[mk] = (monthlyCount[mk] || 0) + 1;
+
+      const wrap = document.createElement("div");
+      wrap.className = "booking";
+      wrap.innerHTML = `
+        <div class="booking-left">
+          <p class="booking-title">${safeText(service)}</p>
+          <div class="booking-meta">
+            ${safeText(date)} · ${safeText(time)}
+            ${b.totalDurationMins ? `<br><span class="mono">${b.totalDurationMins} mins total</span>` : ""}
+            ${b.depositPaid ? `<br><span class="mono">Deposit paid</span>` : ""}
+            ${clientName ? `<br><span class="mono">${safeText(clientName)}</span>` : ""}
+          </div>
+          <div class="kicker">
+            <span class="dot ${statusDotClass(status)}"></span>
+            Status — ${safeText(status)}
+          </div>
+        </div>
+
+        <div class="actions">
+  <button class="btn-primary confirmBtn">Confirm</button>
+  <button class="btn-danger cancelBtn">Cancel</button>
+
+  <details class="more-actions">
+    <summary>More</summary>
+
+    <div class="more-menu">
+      <button class="waConfirm">WhatsApp Confirm</button>
+      <button class="waReminder">WhatsApp Reminder</button>
+
+      <button class="smsConfirm">SMS Confirm</button>
+      <button class="smsCancel">SMS Cancel</button>
+      <button class="smsReminder">SMS Reminder</button>
+
+      <button class="copyConfirm">Copy Confirm</button>
+      <button class="copyCancel">Copy Cancel</button>
+      <button class="copyReminder">Copy Reminder</button>
+    </div>
+  </details>
+</div>
+
+      `;
+      bookingsList.appendChild(wrap);
+      const confirmBtn = wrap.querySelector(".confirmBtn");
+const cancelBtn = wrap.querySelector(".cancelBtn");
+
+confirmBtn.onclick = async () => {
+  confirmBtn.disabled = true;
+  cancelBtn.disabled = true;
+
+  // ✅ 1. OPEN SMS IMMEDIATELY (user gesture)
+  openSMS(
+    b.phone || b.clientPhone,
+    msgConfirm(b)
+  );
+
+  try {
+    // ✅ 2. THEN update booking status
+    await update(ref(db, `bookings/${b.id}`), {
+      status: "confirmed",
+      updatedAt: Date.now()
+    });
+
+    toast(bookingsToast, "Booking confirmed. SMS opened.");
+    await loadBookings();
+  } catch (e) {
+    console.error(e);
+    toast(bookingsToast, "Confirm failed.");
+    confirmBtn.disabled = false;
+    cancelBtn.disabled = false;
+  }
+};
+
+
+cancelBtn.onclick = async () => {
+  confirmBtn.disabled = true;
+  cancelBtn.disabled = true;
+
+  // ✅ OPEN SMS FIRST
+  openSMS(
+    b.phone || b.clientPhone,
+    msgCancel(b)
+  );
+
+  try {
+    await update(ref(db, `bookings/${b.id}`), {
+      status: "cancelled",
+      updatedAt: Date.now()
+    });
+
+    toast(bookingsToast, "Booking cancelled. SMS opened.");
+    await loadBookings();
+  } catch (e) {
+    console.error(e);
+    toast(bookingsToast, "Cancel failed.");
+    confirmBtn.disabled = false;
+    cancelBtn.disabled = false;
+  }
+};
+
+
+
+/* ===================== MESSAGE ACTIONS ===================== */
+const phone = b.phone || b.clientPhone || "";
+const bookingRef = ref(db, `bookings/${b.id}`);
+
+wrap.querySelector(".waConfirm").onclick = async () => {
+  openWhatsApp(phone, msgConfirm(b));
+  await update(bookingRef, {
+    status: "confirmed",
+    updatedAt: Date.now()
+  });
+};
+
+wrap.querySelector(".waReminder").onclick = () => {
+  openWhatsApp(phone, msgReminder(b));
+};
+
+wrap.querySelector(".smsConfirm").onclick = () => {
+  openSMS(phone, msgConfirm(b));
+};
+
+wrap.querySelector(".smsCancel").onclick = async () => {
+  openSMS(phone, msgCancel(b));
+  await update(bookingRef, {
+    status: "cancelled",
+    updatedAt: Date.now()
+  });
+};
+
+wrap.querySelector(".smsReminder").onclick = () => {
+  openSMS(phone, msgReminder(b));
+};
+
+wrap.querySelector(".copyConfirm").onclick = () => {
+  copyToClipboard(msgConfirm(b));
+};
+
+wrap.querySelector(".copyCancel").onclick = () => {
+  copyToClipboard(msgCancel(b));
+};
+
+wrap.querySelector(".copyReminder").onclick = () => {
+  copyToClipboard(msgReminder(b));
+};
+
+    });
+
+    // wire actions (event delegation)
+    bookingsList.querySelectorAll("button[data-act]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        const next = act === "confirm" ? "confirmed" : "cancelled";
+        btn.disabled = true;
+        try {
+          await update(ref(db, `bookings/${id}`), {
+            status: next,
+            updatedAt: Date.now()
+          });
+          toast(bookingsToast, `Booking ${next}.`);
+          await loadBookings();
+        } catch (e) {
+          console.error(e);
+          toast(bookingsToast, "Update blocked by DB rules.");
+        }
+      });
+    });
+
+    renderCharts({ serviceCount, monthlyCount });
+
+  } catch (e) {
+    console.error(e);
+    bookingsList.innerHTML = `<div class="mono">Couldn’t load bookings (rules?).</div>`;
+    toast(bookingsToast, "Bookings read blocked.");
+  }
+}
+
+
+/* ===================== CHARTS ===================== */
+function renderCharts({ serviceCount = {}, monthlyCount = {} }){
+  const svcLabels = Object.keys(serviceCount);
+  const svcValues = Object.values(serviceCount);
+
+  const monthLabels = Object.keys(monthlyCount);
+  const monthValues = Object.values(monthlyCount);
+
+  const palette = ["#111111","#2a2a2a","#3d3d3d","#5a5a5a","#7b7b7b","#9a9a9a","#b5b5b5","#d0d0d0"];
+
+  if (serviceChartInstance) serviceChartInstance.destroy();
+  serviceChartInstance = new Chart(document.getElementById("serviceChart"), {
+    type:"doughnut",
+    data:{
+      labels: svcLabels,
+      datasets:[{
+        data: svcValues,
+        backgroundColor: svcValues.map((_,i)=>palette[i % palette.length]),
+        borderColor:"#ffffff",
+        borderWidth:2
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{ display: true, position:"bottom", labels:{ boxWidth:10 } }
+      },
+      cutout:"66%"
+    }
+  });
+
+  if (monthlyChartInstance) monthlyChartInstance.destroy();
+  monthlyChartInstance = new Chart(document.getElementById("monthlyChart"), {
+    type:"line",
+    data:{
+      labels: monthLabels,
+      datasets:[{
+        data: monthValues,
+        borderColor:"#111",
+        backgroundColor:"transparent",
+        pointRadius:2,
+        tension:.35
+      }]
+    },
+    options:{
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ grid:{display:false}, ticks:{ precision:0 } }
+      }
+    }
+  });
+}
+function renderWalkinServicePicker(){
+  const q = (walkinServiceSearch.value || "").trim().toLowerCase();
+  const cat = walkinServiceCategory.value;
+
+  const filtered = serviceOptions.filter(o=>{
+    const okCat = (cat === "all") || (o.category === cat);
+    const okQ = !q || (o.name || "").toLowerCase().includes(q) || (o.category || "").toLowerCase().includes(q);
+    return okCat && okQ;
+  });
+
+  walkinServiceList.innerHTML = filtered.map(o=>{
+    const checked = walkinSelected.has(o.id) ? "checked" : "";
+    const meta = [
+      o.durationMins ? `${o.durationMins} mins` : null,
+      (o.price || o.priceFrom) ? moneyGBP(o.price || o.priceFrom) : null
+    ].filter(Boolean).join(" · ");
+
+    return `
+      <div class="svc">
+        <div class="svc-left">
+          <p class="svc-name">${safeText(o.name)}</p>
+          <p class="svc-meta">${safeText(o.category)}${meta ? ` · ${safeText(meta)}` : ""}</p>
+        </div>
+        <div class="chk">
+          <input type="checkbox" data-wsvc="${safeText(o.id)}" ${checked}/>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  walkinServiceList.querySelectorAll('input[type="checkbox"][data-wsvc]').forEach(chk=>{
+    chk.addEventListener("change", ()=>{
+      const id = chk.dataset.wsvc;
+      if (chk.checked) walkinSelected.add(id);
+      else walkinSelected.delete(id);
+      renderWalkinSummary();
+    });
+  });
+
+  renderWalkinSummary();
+}
+
+function renderWalkinSummary(){
+  const { picked, totalMins, totalPrice } = walkinTotals();
+  if (!picked.length){
+    walkinSummary.textContent = "No services selected.";
+    return;
+  }
+  const names = picked.map(s=>s.name).join(" + ");
+  walkinSummary.textContent = `${names} · ${totalMins} mins · ${moneyGBP(totalPrice)}`;
+}
+
+walkinServiceSearch.addEventListener("input", renderWalkinServicePicker);
+walkinServiceCategory.addEventListener("change", renderWalkinServicePicker);
+/* ===================== SERVICES (OPTIONS + SELECTED) ===================== */
+async function loadServiceOptionsAndSelections(){
+  // 1) Try to load service options from RTDB /serviceOptions (recommended).
+  // 2) If not present, fallback to a hardcoded list so the UI still works.
+  let options = [];
+
+  try{
+   const optSnap = await get(ref(db, "bookingServices"));
+
+
+    if (optSnap.exists()){
+      const raw = optSnap.val();
+      options = Object.entries(raw).map(([id, v])=>({
+        id,
+        name: v.name,
+        category: v.category || "General",
+        price: v.price || "",
+        durationMins: v.durationMins || v.duration || ""
+      }));
+    }
+  }catch(e){
+    console.warn("serviceOptions read blocked or missing", e);
+  }
+
+  
+  serviceOptions = options.sort((a,b)=> (a.category+a.name).localeCompare(b.category+b.name));
+
+  // load stylist selections: /stylists/{uid}/services
+  selectedServices = new Set();
+  try{
+   const selSnap = await get(
+  ref(db, `stylists/${currentStylistId}/requestedServices`)
+);
+
+    if (selSnap.exists()){
+      Object.keys(selSnap.val()).forEach(id => selectedServices.add(id));
+    }
+  }catch(e){
+    console.warn("selected services read blocked", e);
+  }
+
+  // categories
+  const cats = Array.from(new Set(serviceOptions.map(o=>o.category))).sort();
+  serviceCategory.innerHTML = `<option value="all">All</option>` + cats.map(c=>`<option value="${safeText(c)}">${safeText(c)}</option>`).join("");
+}
+// load approved services
+approvedServices = new Set();
+try {
+  const approvedSnap = await get(
+    ref(db, `stylists/${currentStylistId}/approvedServices`)
+  );
+  if (approvedSnap.exists()) {
+    Object.keys(approvedSnap.val()).forEach(id =>
+      approvedServices.add(id)
+    );
+  }
+} catch (e) {
+  console.warn("approved services read blocked", e);
+}
+// 🔒 load service request lock (admin-controlled)
+let serviceRequestsLocked = false;
+
+try {
+  const lockSnap = await get(
+    ref(db, `stylists/${currentStylistId}/serviceRequestsLocked`)
+  );
+  serviceRequestsLocked = lockSnap.val() === true;
+} catch (e) {
+  console.warn("serviceRequestsLocked read blocked", e);
+}
+
+// disable save button if locked
+saveServicesBtn.disabled = serviceRequestsLocked;
+
+// store globally if you want to use it elsewhere
+window._serviceRequestsLocked = serviceRequestsLocked;
+
+function renderServicePicker(){
+  const q = (serviceSearch.value || "").trim().toLowerCase();
+  const cat = serviceCategory.value;
+
+  const filtered = serviceOptions.filter(o=>{
+    const okCat = (cat === "all") || (o.category === cat);
+    const okQ = !q || (o.name || "").toLowerCase().includes(q) || (o.category || "").toLowerCase().includes(q);
+    return okCat && okQ;
+  });
+
+  serviceList.innerHTML = filtered.map(o=>{
+   const isRequested = selectedServices.has(o.id);
+const isApproved = approvedServices.has(o.id);
+
+const checked = isRequested ? "checked" : "";
+const statusLabel = isApproved
+  ? `<span class="tag">Approved</span>`
+  : isRequested
+    ? `<span class="tag">Pending</span>`
+    : "";
+
+    const meta = [
+      o.price ? String(o.price) : null,
+      o.durationMins ? `${o.durationMins} mins` : null
+    ].filter(Boolean).join(" · ");
+
+   return `
+  <div class="svc">
+    <div class="svc-left">
+      <p class="svc-name">${safeText(o.name)}</p>
+      <p class="svc-meta">
+        ${safeText(o.category)}${meta ? ` · ${safeText(meta)}` : ""}
+        ${statusLabel}
+      </p>
+    </div>
+    <div class="chk">
+      <input type="checkbox" data-svc="${safeText(o.id)}" ${checked}/>
+    </div>
+  </div>
+`;
+
+  }).join("");
+
+  serviceList.querySelectorAll('input[type="checkbox"][data-svc]').forEach(chk=>{
+    chk.addEventListener("change", ()=>{
+      const id = chk.dataset.svc;
+      if (chk.checked) selectedServices.add(id);
+      else selectedServices.delete(id);
+    });
+  });
+}
+
+serviceSearch.addEventListener("input", renderServicePicker);
+serviceCategory.addEventListener("change", renderServicePicker);
+
+saveServicesBtn.addEventListener("click", async () => {
+  if (!currentStylistId) return;
+
+  const payload = {};
+  selectedServices.forEach(id => {
+    payload[id] = true;
+  });
+
+ await set(
+  ref(db, `stylists/${currentStylistId}/requestedServices`),
+  payload
+);
+
+
+  toast(servicesToast, "Services saved.");
+});
+
+/* ===================== AVAILABILITY ===================== */
+const dayKeys = [
+  {k:"mon", name:"Monday"},
+  {k:"tue", name:"Tuesday"},
+  {k:"wed", name:"Wednesday"},
+  {k:"thu", name:"Thursday"},
+  {k:"fri", name:"Friday"},
+  {k:"sat", name:"Saturday"},
+  {k:"sun", name:"Sunday"}
+];
+
+function defaultAvailability(){
+  const obj = {};
+  dayKeys.forEach(d=>{
+    obj[d.k] = { enabled: d.k !== "sun", start:"09:00", end:"18:00", slotMins:30 };
+  });
+  return obj;
+}
+
+async function loadAvailability(){
+  availability = defaultAvailability();
+  try{
+    const snap = await get(ref(db, `stylists/${currentStylistId}/availability`));
+    if (snap.exists()){
+      const raw = snap.val();
+      dayKeys.forEach(d=>{
+        if (raw[d.k]){
+          availability[d.k] = {
+            enabled: !!raw[d.k].enabled,
+            start: raw[d.k].start || "09:00",
+            end: raw[d.k].end || "18:00",
+            slotMins: Number(raw[d.k].slotMins || 30)
+          };
+        }
+      });
+    }
+  }catch(e){
+    console.warn("availability read blocked", e);
+  }
+}
+
+function renderAvailabilityUI(){
+  daysContainer.innerHTML = dayKeys.map(d=>{
+    const v = availability[d.k] || {enabled:false,start:"09:00",end:"18:00",slotMins:30};
+    return `
+      <div class="day" data-day="${d.k}">
+        <div class="day-head">
+          <strong>${safeText(d.name)}</strong>
+          <label class="switch">
+            <input type="checkbox" data-av-enabled ${v.enabled ? "checked":""}/>
+            Enabled
+          </label>
+        </div>
+        <div class="day-body">
+          <div class="field">
+            <label>Start</label>
+            <input type="time" data-av-start value="${safeText(v.start)}" />
+          </div>
+          <div class="field">
+            <label>End</label>
+            <input type="time" data-av-end value="${safeText(v.end)}" />
+          </div>
+          <div class="field">
+            <label>Slot minutes</label>
+            <select data-av-slot>
+              ${[15,20,30,45,60].map(n=>`<option value="${n}" ${Number(v.slotMins)===n?"selected":""}>${n}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  daysContainer.querySelectorAll(".day").forEach(dayEl=>{
+    const k = dayEl.dataset.day;
+    const enabledEl = dayEl.querySelector("[data-av-enabled]");
+    const startEl = dayEl.querySelector("[data-av-start]");
+    const endEl = dayEl.querySelector("[data-av-end]");
+    const slotEl = dayEl.querySelector("[data-av-slot]");
+
+    const apply = ()=>{
+      availability[k] = {
+        enabled: !!enabledEl.checked,
+        start: startEl.value || "09:00",
+        end: endEl.value || "18:00",
+        slotMins: Number(slotEl.value || 30)
+      };
+    };
+    enabledEl.addEventListener("change", apply);
+    startEl.addEventListener("change", apply);
+    endEl.addEventListener("change", apply);
+    slotEl.addEventListener("change", apply);
+  });
+}
+
+saveAvailabilityBtn.addEventListener("click", async ()=>{
+  saveAvailabilityBtn.disabled = true;
+  saveAvailabilityBtn.textContent = "Saving…";
+
+  // basic validation
+  for (const d of dayKeys){
+    const v = availability[d.k];
+    if (!v) continue;
+    if (v.enabled && v.start >= v.end){
+      toast(availabilityToast, `${d.name}: start must be before end.`);
+      saveAvailabilityBtn.disabled = false;
+      saveAvailabilityBtn.textContent = "Save Availability";
+      return;
+    }
+  }
+
+  try{
+   await update(ref(db, `stylists/${currentStylistId}`), {
+  availability,
+  updatedAt: Date.now()
+});
+
+    toast(availabilityToast, "Availability saved.");
+  }catch(e){
+    console.error(e);
+    toast(availabilityToast, "Save blocked by DB rules.");
+  }finally{
+    saveAvailabilityBtn.disabled = false;
+    saveAvailabilityBtn.textContent = "Save Availability";
+  }
+});
+
+/* ===================== BLOCKED SLOTS ===================== */
+async function loadBlockedSlots(){
+  blockedSlots = {};
+  blockedList.innerHTML = `<div class="mono">Loading…</div>`;
+  try{
+    const snap = await get(ref(db, `stylists/${currentStylistId}/blockedSlots`));
+    if (snap.exists()) blockedSlots = snap.val() || {};
+  }catch(e){
+    console.warn("blockedSlots read blocked", e);
+  }
+}
+
+function renderBlockedUI() {
+  blockedList.innerHTML = "";
+
+  if (!blockedSlots || Object.keys(blockedSlots).length === 0) {
+    blockedList.innerHTML = `<div class="mono">No blocked slots yet.</div>`;
+    return;
+  }
+
+  Object.entries(blockedSlots).forEach(([date, ranges]) => {
+    Object.keys(ranges).forEach(range => {
+      const row = document.createElement("div");
+      row.className = "blocked-item";
+
+      row.innerHTML = `
+        <div>
+          <strong>${date}</strong>
+          <div class="mono">${range.replace("-", " → ")}</div>
+        </div>
+        <button class="link-btn" data-date="${date}" data-range="${range}">
+          Remove
+        </button>
+      `;
+
+      row.querySelector("button").onclick = async () => {
+        await remove(ref(db, `stylists/${currentStylistId}/blockedSlots/${date}/${range}`));
+        toast(blockedToast, "Blocked time removed");
+        await loadBlockedSlots();
+        renderBlockedUI();
+      };
+
+      blockedList.appendChild(row);
+    });
+  });
+}
+
+
+addBlockedBtn.addEventListener("click", async () => {
+  const date = blockDate.value;
+  const start = blockStartTime.value;
+  const end = blockEndTime.value;
+
+  if (!date || !start || !end) {
+    toast(blockedToast, "Pick date, start time and end time.");
+    return;
+  }
+
+  if (start >= end) {
+    toast(blockedToast, "End time must be after start time.");
+    return;
+  }
+
+  const rangeKey = `${start}-${end}`;
+
+  try {
+    await set(
+      ref(db, `stylists/${currentStylistId}/blockedSlots/${date}/${rangeKey}`),
+      true
+    );
+
+    blockStartTime.value = "";
+    blockEndTime.value = "";
+
+    toast(blockedToast, "Time range blocked.");
+    await loadBlockedSlots();
+    renderBlockedUI();
+  } catch (err) {
+    console.error(err);
+    toast(blockedToast, "Failed to block slot.");
+  }
+});
+
+/* ===================== NAV HELPERS ===================== */
+serviceSearch.addEventListener("keydown", (e)=>{
+  if (e.key === "Escape") serviceSearch.value = "";
+});
+profileAvatar.addEventListener("click", () => {
+  if (!auth.currentUser) {
+    toast(quickToast, "Please wait — signing you in.");
+    return;
+  }
+  profilePhotoInput.click();
+});
+function cleanPhone(phone) {
+  return String(phone || "").replace(/[^\d]/g, "");
+}
+
+function openWhatsApp(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) return toast(bookingsToast, "No phone number.");
+  window.open(
+    `https://wa.me/${p}?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
+}
+
+function openSMS(phone, message) {
+  const p = cleanPhone(phone);
+  if (!p) return toast(bookingsToast, "No phone number.");
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sep = isIOS ? "&" : "?";
+  window.open(
+    `sms:${p}${sep}body=${encodeURIComponent(message)}`,
+    "_blank"
+  );
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast(bookingsToast, "Copied ✅");
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    toast(bookingsToast, "Copied ✅");
+  }
+}
+function msgConfirm(b) {
+  return `Hi ${b.clientName || b.name} 👋
+
+Your appointment with *Angels Hair Mall* is *CONFIRMED* ✅
+
+💇 Service: ${b.service || ""}
+📅 Date: ${b.date}
+⏰ Time: ${b.startTime || b.time}
+
+See you soon ✨`;
+}
+
+function msgCancel(b) {
+  return `Hi ${b.clientName || b.name},
+
+Your appointment with *Angels Hair Mall* has been *CANCELLED* ❌
+
+💇 Service: ${b.service || ""}
+📅 Date: ${b.date}
+⏰ Time: ${b.startTime || b.time}
+
+If you have questions, feel free to reply.`;
+}
+
+function msgReminder(b) {
+  return `Hi ${b.clientName || b.name} 👋
+
+⏰ *Appointment Reminder*
+
+💇 Service: ${b.service || ""}
+📅 Date: ${b.date}
+⏰ Time: ${b.startTime || b.time}
+
+We look forward to seeing you ✨`;
+}
+
+// ===================== SAVE PHONE NUMBER =====================
+savePhoneBtn.addEventListener("click", async () => {
+  const code = countryCodeSelect.value;
+  const local = stylistPhoneInput.value.trim();
+
+  if (!/^[0-9]{9,10}$/.test(local)) {
+    toast(phoneToast, "Enter a valid UK mobile number");
+    return;
+  }
+
+  if (!currentStylistId) {
+    toast(phoneToast, "Not signed in.");
+    return;
+  }
+
+  const fullPhone = `${code}${local}`;
+
+  try {
+    await update(ref(db, `stylists/${currentStylistId}`), {
+      phone: fullPhone,
+      updatedAt: Date.now()
+    });
+
+    toast(phoneToast, "Phone number updated.");
+  } catch (e) {
+    console.error(e);
+    toast(phoneToast, "Update failed. Check permissions.");
+  }
+});
+async function saveWalkin(){
+  if (!currentStylistId) return;
+
+  const clientName = (walkinClientName.value || "").trim();
+  const clientPhone = (walkinClientPhone.value || "").trim();
+  const date = walkinDate.value || todayISO();
+  const startTime = walkinStart.value || nowHHMM();
+
+  const { picked, totalMins, totalPrice } = walkinTotals();
+  if (!picked.length){
+    toast(walkinToast, "Select at least one service.");
+    return;
+  }
+  if (!totalMins || totalMins <= 0){
+    toast(walkinToast, "Selected service(s) must have durations.");
+    return;
+  }
+
+  const endTime = addMins(startTime, totalMins);
+
+  // Keep same shape your booking page uses: bookings.services[] with name/price/durationMins
+  const servicesPayload = picked.map(s => ({
+    id: s.id,
+    name: s.name,
+    price: Number(s.price || s.priceFrom || 0),
+    durationMins: Number(s.durationMins || 0),
+    category: s.category || "General"
+  }));
+
+  const bookingId = push(ref(db, "bookings")).key;
+
+  const payload = {
+    stylistId: currentStylistId,
+    clientName: clientName || "Walk-in",
+    phone: clientPhone || "",
+    date,
+    startTime,
+    endTime,
+    services: servicesPayload,
+    totalDurationMins: totalMins,
+    totalPrice: totalPrice,
+    status: "confirmed",
+    walkIn: true,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+
+  try{
+    await set(ref(db, `bookings/${bookingId}`), payload);
+    toast(walkinToast, "Walk-in saved ✅");
+
+    // reset quick
+    walkinClientName.value = "";
+    walkinClientPhone.value = "";
+    walkinSelected.clear();
+    renderWalkinServicePicker();
+
+    await loadWalkinsList();
+    await loadBookings(); // so it appears in My Bookings too
+  }catch(e){
+    console.error(e);
+    toast(walkinToast, "Failed to save walk-in (rules?).");
+  }
+}
+
+saveWalkinBtn.addEventListener("click", saveWalkin);
+
+refreshWalkinServicesBtn.addEventListener("click", async ()=>{
+  await loadServiceOptionsAndSelections();   // reload from DB (imports latest)
+  renderServicePicker();                    // your existing services view
+  renderWalkinServicePicker();              // walk-ins view
+  toast(walkinToast, "Imported latest services.");
+});
+async function loadWalkinsList(){
+  walkinsList.innerHTML = `<div class="mono">Loading…</div>`;
+  try{
+    const qy = query(ref(db, "bookings"), orderByChild("stylistId"), equalTo(currentStylistId));
+    const snap = await get(qy);
+
+    if (!snap.exists()){
+      walkinsList.innerHTML = `<div class="mono">No walk-ins yet.</div>`;
+      return;
+    }
+
+    const rows = Object.entries(snap.val())
+      .map(([id,b])=>({ id, ...b }))
+      .filter(b => b.walkIn === true)
+      .sort((a,b)=> (b.createdAt||0)-(a.createdAt||0))
+      .slice(0, 10);
+
+    if (!rows.length){
+      walkinsList.innerHTML = `<div class="mono">No walk-ins yet.</div>`;
+      return;
+    }
+
+    walkinsList.innerHTML = rows.map(b=>{
+      const svc = Array.isArray(b.services) ? b.services.map(s=>s.name).join(" + ") : "Service";
+      return `
+        <div class="booking">
+          <div class="booking-left">
+            <p class="booking-title">${safeText(svc)}</p>
+            <div class="booking-meta">
+              ${safeText(b.date||"—")} · ${safeText(b.startTime||"—")} – ${safeText(b.endTime||"—")}
+              <br><span class="mono">${safeText(b.clientName||"Walk-in")}</span>
+            </div>
+            <div class="kicker">
+              <span class="dot confirmed"></span>
+              Walk-in
+            </div>
+          </div>
+          <div class="actions">
+            <button class="link-btn" data-del="${b.id}">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    walkinsList.querySelectorAll("button[data-del]").forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id = btn.dataset.del;
+        try{
+          await remove(ref(db, `bookings/${id}`));
+          await loadWalkinsList();
+          toast(walkinToast, "Walk-in deleted.");
+          await loadBookings();
+        }catch(e){
+          console.error(e);
+          toast(walkinToast, "Delete blocked by rules.");
+        }
+      };
+    });
+
+  }catch(e){
+    console.error(e);
+    walkinsList.innerHTML = `<div class="mono">Failed to load walk-ins.</div>`;
+  }
+}
+</script>
+
+<!--
+==================== IMPORTANT: RTDB RULES (so login/redirect doesn’t hang) ====================
+If your login shows “Signing in…” forever, it’s usually because this dashboard (and your login page)
+can’t read:
+  /users/<uid>/role
+or can’t read stylist data paths.
+
+A solid starting point (tight but workable) is:
+
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "stylists": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+
+        "services": { ".read": "auth != null", ".write": "auth != null && auth.uid === $uid" },
+        "availability": { ".read": "auth != null", ".write": "auth != null && auth.uid === $uid" },
+        "blockedSlots": { ".read": "auth != null", ".write": "auth != null && auth.uid === $uid" }
+      }
+    },
+
+    "serviceOptions": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+    "bookings": {
+      ".read": "auth != null",
+      "$bid": {
+        ".write": "auth != null && (
+          data.child('stylistId').val() === auth.uid ||
+          newData.child('stylistId').val() === auth.uid
+        )"
+      }
+    }
+  }
+}
+
+You can tighten/expand later (for public booking, allow read of selected stylist services/availability to clients).
+-->
+
+</body>
+</html>
+
