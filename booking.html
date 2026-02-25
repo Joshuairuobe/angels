@@ -729,16 +729,19 @@ input:focus, select:focus{ border-color:#cfcfcf; }
   <div class="summary-row"><span>Remaining (after service)</span><strong id="sumRemaining">—</strong></div>
 
   <!-- Stripe Payment Link Button -->
-  <div style="margin-top: 16px;">
-  
-    <button class="pay-deposit-btn" id="payDepositBtn" type="button">
-  Pay £10 Deposit
-</button>
-  
-  </div>
-
-
+  <!-- Stripe embedded payment -->
+<div style="margin-top:16px;">
+  <form id="payment-form">
+    <div id="payment-element" style="padding:12px;border:1px solid var(--line);border-radius:12px;"></div>
+    <button class="pay-deposit-btn" id="payDepositBtn" type="submit">
+      Pay £10 Deposit
+    </button>
+    <div class="toast" id="payToast"></div>
+  </form>
 </div>
+
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
 
           <button 
   class="secondary" 
@@ -1935,44 +1938,110 @@ async function loadAppointments(){
 
 /* ===================== INIT UI ===================== */
 renderServices();
-const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
+// ✅ Your Stripe publishable key (safe in frontend)
+const STRIPE_PUBLISHABLE_KEY = "pk_live_51T1R7jLxUBnyWjtLsfMixcWXLeilYo2iPe6Y1cK0Nd57UfP5EwvH6JYqBsXXbZggvqPTSAbC0D5bX6TctKcZMrOQ00f6hSFm3k"; // <-- replace
+const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+let elements = null;
+let currentBookingId = null;
+
+async function mountStripePaymentElement(clientSecret) {
+  if (elements) {
+    // If remounting, you can optionally clear UI, but simplest is reload container:
+    document.getElementById("payment-element").innerHTML = "";
+  }
+
+  elements = stripe.elements({ clientSecret });
+  const paymentElement = elements.create("payment");
+  paymentElement.mount("#payment-element");
+}
+
+// When summary becomes ready, you can wait until user clicks Pay OR mount immediately.
+// We'll mount on Pay click so you don't create PaymentIntents unnecessarily.
+
+const paymentForm = document.getElementById("payment-form");
 const payDepositBtn = document.getElementById("payDepositBtn");
 
-payDepositBtn.addEventListener("click", async () => {
+paymentForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
   payDepositBtn.disabled = true;
 
   try {
-    // 1) Create a HOLD booking (not confirmed)
-    const bookingId = await createBooking({
+    // 1) Create HOLD booking in Firebase (you already have createBooking)
+    currentBookingId = await createBooking({
       depositPaid: false,
       status: "awaiting_payment"
     });
 
-    // 2) Create Stripe Checkout Session (server) and get redirect URL
-    const res = await fetch("https://us-central1-angelshairmall.cloudfunctions.net/createCheckoutSession", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        bookingId,
-        amount: 10,            // deposit (£10)
-        currency: "gbp",
-        email: currentUser.email
-      })
-    });
+    // 2) Ask server for PaymentIntent client_secret
+    const res = await fetch(
+      "https://us-central1-angelshairmall.cloudfunctions.net/createPaymentIntent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId: currentBookingId,
+          amount: 10,          // £10 deposit
+          currency: "gbp",
+          email: currentUser.email
+        })
+      }
+    );
 
     const data = await res.json();
-    if (!res.ok || !data?.url) throw new Error(data?.error || "Could not start payment.");
+    if (!res.ok || !data?.clientSecret) {
+      throw new Error(data?.error || "Could not start payment.");
+    }
 
-    // 3) Redirect to Stripe Checkout
-    window.location.href = data.url;
+    // 3) Mount the embedded payment UI (Apple Pay / Google Pay / Card / Link)
+    await mountStripePaymentElement(data.clientSecret);
 
-  } catch (e) {
-    console.error(e);
-    toast(payToast, e.message || "Payment failed to start.");
+    // 4) Confirm payment (stays on-page unless Stripe requires a redirect)
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        // optional: return_url for edge cases / bank auth
+        return_url: `${window.location.origin}${window.location.pathname}?bookingId=${currentBookingId}`
+      },
+      redirect: "if_required"
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // IMPORTANT:
+    // Do NOT trust frontend alone to mark paid.
+    // Wait for webhook to update Firebase.
+    toast(payToast, "Payment processing… confirming booking ✅");
+
+    // 5) Listen for booking confirmation in RTDB
+    await waitForBookingConfirmation(currentBookingId);
+
+    toast(payToast, "Deposit received — booking confirmed ✅");
+    await loadAppointments();
+    resetAfterBooking();
+
+  } catch (err) {
+    console.error(err);
+    toast(payToast, err.message || "Payment failed.");
     payDepositBtn.disabled = false;
   }
 });
-</script>
+
+// Realtime wait (polling alternative if you prefer)
+async function waitForBookingConfirmation(bookingId) {
+  // quick and simple: poll for up to ~30s
+  const start = Date.now();
+  while (Date.now() - start < 30000) {
+    const snap = await get(ref(db, `bookings/${bookingId}`));
+    const b = snap.val();
+    if (b?.depositPaid === true && (b?.status || "").toLowerCase() === "confirmed") return true;
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  // If it times out, still fine — webhook may land a bit later.
+  throw new Error("Payment received but confirmation is taking longer. Check My Appointments.");
+}</script>
 
 
 <!--
