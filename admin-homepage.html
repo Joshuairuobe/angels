@@ -1,126 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Homepage Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>Homepage Manager</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
 
-  <style>
-    body{
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background:#fafafa;
-      max-width:1100px;
-      margin:auto;
-      padding:60px 40px;
-    }
-    h1{
-      font-family:"Playfair Display";
-      font-size:42px;
-      margin-bottom:40px;
-      letter-spacing:.01em;
-    }
-    h2{ margin:0 0 10px; font-size:18px; }
-    .section{
-      background:#fff;
-      padding:30px;
-      border-radius:18px;
-      margin-bottom:40px;
-      box-shadow:0 10px 30px rgba(0,0,0,.04);
-      border:1px solid #eee;
-    }
-    label{
-      font-size:11px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:#777;
-      display:block;
-      margin:18px 0 6px;
-    }
-    input, textarea{
-      width:100%;
-      padding:14px;
-      border-radius:12px;
-      border:1px solid #e5e5e5;
-      font-family:inherit;
-      font-size:14px;
-      outline:none;
-      background:#fff;
-    }
-    textarea{ min-height:100px; resize:vertical; }
-    button{
-      margin-top:16px;
-      padding:12px 18px;
-      border-radius:999px;
-      border:none;
-      background:#111;
-      color:#fff;
-      cursor:pointer;
-      font-weight:600;
-      letter-spacing:.02em;
-    }
-    button.secondary{
-      background:#fff;
-      color:#111;
-      border:1px solid #e5e5e5;
-      margin-left:10px;
-    }
-    button.danger{
-      background:#fff;
-      color:#b00020;
-      border:1px solid #f0c6cc;
-    }
-    .row{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:10px;
-    }
-    .toggle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-top:10px;
-      padding:10px 12px;
-      border:1px solid #eee;
-      border-radius:12px;
-      width:fit-content;
-      background:#fafafa;
-    }
-    .toggle input{ width:auto; padding:0; }
-    .item{
-      border:1px solid #eee;
-      padding:18px;
-      border-radius:14px;
-      margin-top:16px;
-      background:#fff;
-    }
-    .thumb{
-      margin-top:10px;
-      width:120px;
-      border-radius:12px;
-      border:1px solid #eee;
-      display:block;
-    }
-    .note{
-      color:#666;
-      font-size:12px;
-      margin-top:8px;
-      line-height:1.5;
-    }
-    .muted{
-      opacity:.65;
-      font-size:12px;
-      margin-top:8px;
-    }
-    .divider{
-      height:1px;
-      background:#eee;
-      margin:18px 0;
-    }
-  </style>
+<style>
+
+body{
+  font-family:Inter;
+  background:#fafafa;
+  max-width:1100px;
+  margin:auto;
+  padding:60px 40px;
+}
+
+h1{
+  font-family:"Playfair Display";
+  font-size:42px;
+  margin-bottom:40px;
+}
+
+.section{
+  background:#fff;
+  padding:30px;
+  border-radius:18px;
+  margin-bottom:40px;
+  box-shadow:0 10px 30px rgba(0,0,0,.04);
+}
+
+label{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#777;
+  display:block;
+  margin:20px 0 6px;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #e5e5e5;
+}
+
+button{
+  margin-top:20px;
+  padding:14px 28px;
+  border-radius:999px;
+  border:none;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+}
+
+.item{
+  border:1px solid #eee;
+  padding:20px;
+  border-radius:12px;
+  margin-top:20px;
+}
+
+</style>
 </head>
 
 <body>
@@ -129,486 +72,406 @@
 
 <!-- HERO -->
 <div class="section">
-  <h2>Hero</h2>
 
-  <div class="toggle">
-    <input type="checkbox" id="heroEnabled">
-    <span>Enabled</span>
-  </div>
+<h2>Hero</h2>
 
-  <label>Title (HTML allowed)</label>
-  <input id="heroTitle">
+<label>Title</label>
+<input id="heroTitle">
 
-  <label>Subtitle</label>
-  <input id="heroSubtitle">
+<label>Subtitle</label>
+<input id="heroSubtitle">
 
-  <div class="row">
-    <div style="flex:1;min-width:240px">
-      <label>Button Text</label>
-      <input id="heroButton">
-    </div>
-    <div style="flex:1;min-width:240px">
-      <label>Button Link</label>
-      <input id="heroLink">
-    </div>
-  </div>
+<label>Button Text</label>
+<input id="heroButton">
 
-  <label>Hero Image (upload)</label>
-  <input type="file" id="heroFile" accept="image/*">
+<label>Button Link</label>
+<input id="heroLink">
 
-  <img id="heroPreview" class="thumb" style="display:none" alt="Hero preview">
+<label>Hero Media</label>
+<input type="file" id="heroFile">
 
-  <div class="row">
-    <button type="button" onclick="saveHero()">Save Hero</button>
-  </div>
+<button onclick="saveHero()">Save Hero</button>
 
-  <p class="note">Hero writes to <code>homepage/hero</code> with fields: title, subtitle, buttonText, buttonLink, image, enabled.</p>
 </div>
 
 <!-- NAV -->
 <div class="section">
-  <h2>Navigation</h2>
 
-  <div class="toggle">
-    <input type="checkbox" id="navEnabled">
-    <span>Enabled</span>
-  </div>
+<h2>Navigation</h2>
 
-  <div id="navLinks"></div>
+<div id="navLinks"></div>
 
-  <div class="row">
-    <button type="button" onclick="addNav()">Add Link</button>
-    <button type="button" class="secondary" onclick="saveNav()">Save Navigation</button>
-  </div>
+<button onclick="addNav()">Add Link</button>
+<button onclick="saveNav()">Save Navigation</button>
 
-  <p class="note">Navigation writes to <code>homepage/nav</code> with fields: links[], enabled.</p>
 </div>
 
 <!-- CURATED -->
 <div class="section">
-  <h2>Curated Grid</h2>
 
-  <div class="toggle">
-    <input type="checkbox" id="curatedEnabled">
-    <span>Enabled</span>
-  </div>
+<h2>Curated Grid</h2>
 
-  <div id="curatedWrap"></div>
+<div id="curatedWrap"></div>
 
-  <div class="row">
-    <button type="button" onclick="addCurated()">Add Item</button>
-    <button type="button" class="secondary" onclick="saveCurated()">Save Curated</button>
-  </div>
+<button onclick="addCurated()">Add Item</button>
+<button onclick="saveCurated()">Save Curated</button>
 
-  <p class="note">Curated writes to <code>homepage/curated</code> with fields: items[], enabled.</p>
 </div>
 
 <!-- SERVICES -->
 <div class="section">
-  <h2>Services</h2>
 
-  <div class="toggle">
-    <input type="checkbox" id="servicesEnabled">
-    <span>Enabled</span>
-  </div>
+<h2>Services</h2>
 
-  <div id="servicesWrap"></div>
+<div id="servicesWrap"></div>
 
-  <div class="row">
-    <button type="button" onclick="addService()">Add Service</button>
-    <button type="button" class="secondary" onclick="saveServices()">Save Services</button>
-  </div>
+<button onclick="addService()">Add Service</button>
+<button onclick="saveServices()">Save Services</button>
 
-  <p class="note">Services writes to <code>homepage/services</code> with fields: items[], enabled.</p>
 </div>
 
 <!-- SHOP HERO -->
 <div class="section">
-  <h2>Shop Hero</h2>
 
-  <div class="toggle">
-    <input type="checkbox" id="shopEnabled">
-    <span>Enabled</span>
-  </div>
+<h2>Shop Hero</h2>
 
-  <label>Title</label>
-  <input id="shopTitle">
+<label>Title</label>
+<input id="shopTitle">
 
-  <div class="row">
-    <div style="flex:1;min-width:240px">
-      <label>Button</label>
-      <input id="shopButton">
-    </div>
-    <div style="flex:1;min-width:240px">
-      <label>Link</label>
-      <input id="shopLink">
-    </div>
-  </div>
+<label>Button</label>
+<input id="shopButton">
 
-  <label>Background Image (upload)</label>
-  <input type="file" id="shopFile" accept="image/*">
+<label>Link</label>
+<input id="shopLink">
 
-  <img id="shopPreview" class="thumb" style="display:none" alt="Shop hero preview">
+<label>Background</label>
+<input type="file" id="shopFile">
 
-  <div class="row">
-    <button type="button" onclick="saveShopHero()">Save Shop Hero</button>
-  </div>
+<button onclick="saveShopHero()">Save Shop Hero</button>
 
-  <p class="note">Shop Hero writes to <code>homepage/shopHero</code> with fields: title, button, link, image, enabled.</p>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-//////////////////////////////
-// FIREBASE
-//////////////////////////////
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  update,
+  set
+} from
+"https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+
+////////////////////////////////////////////////
+
 const app = initializeApp({
-  apiKey:"AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
-  databaseURL:"https://angelshairmall-default-rtdb.firebaseio.com",
+apiKey:"AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+databaseURL:"https://angelshairmall-default-rtdb.firebaseio.com",
 });
+
 const db = getDatabase(app);
 
-//////////////////////////////
-// CLOUDINARY UPLOAD
-//////////////////////////////
+////////////////////////////////////////////////
+//// CLOUDINARY
+////////////////////////////////////////////////
+
 async function upload(file){
-  const type = file.type.startsWith("video/") ? "video" : "image";
 
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", "angels_gallery");
+const type = file.type.startsWith("video/")
+? "video"
+: "image";
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/dln4u67up/${type}/upload`, {
-    method:"POST",
-    body: fd
-  });
+const fd = new FormData();
+fd.append("file",file);
+fd.append("upload_preset","angels_gallery");
 
-  const data = await res.json();
-  if(!data.secure_url) throw new Error("Upload failed");
-  return data.secure_url;
+const res = await fetch(
+`https://api.cloudinary.com/v1_1/dln4u67up/${type}/upload`,
+{method:"POST",body:fd}
+);
+
+const data = await res.json();
+
+return data.secure_url;
+
 }
 
-//////////////////////////////
-// PREVIEW HELPERS
-//////////////////////////////
-function wireImagePreview(fileInput, imgEl){
-  fileInput.addEventListener("change", ()=>{
-    const f = fileInput.files?.[0];
-    if(!f){
-      imgEl.style.display = "none";
-      return;
-    }
-    const url = URL.createObjectURL(f);
-    imgEl.src = url;
-    imgEl.style.display = "block";
-  });
-}
-wireImagePreview(document.getElementById("heroFile"), document.getElementById("heroPreview"));
-wireImagePreview(document.getElementById("shopFile"), document.getElementById("shopPreview"));
+////////////////////////////////////////////////
+//// HERO
+////////////////////////////////////////////////
+window.saveHero = async()=>{
 
-//////////////////////////////
-// NAV UI
-//////////////////////////////
-function renderNavItem(item = {}){
-  const wrap = document.createElement("div");
-  wrap.className = "item";
-  wrap.innerHTML = `
-    <label>Link Title</label>
-    <input class="navTitle" value="${escapeHtml(item.title || "")}" placeholder="e.g. Services">
+let media="";
 
-    <label>Link URL</label>
-    <input class="navUrl" value="${escapeHtml(item.url || "")}" placeholder="e.g. services.html">
-
-    <div class="row">
-      <button type="button" class="danger" data-del>Delete</button>
-    </div>
-  `;
-  wrap.querySelector("[data-del]").addEventListener("click", ()=> wrap.remove());
-  navLinks.appendChild(wrap);
+if(heroFile.files[0]){
+  media = await upload(heroFile.files[0]);
+}else{
+  const snap = await get(ref(db,"homepage/hero"));
+  media = snap.val()?.image || "";
 }
 
-window.addNav = ()=> renderNavItem();
+await update(ref(db,"homepage/hero"),{
 
-window.saveNav = async ()=>{
-  const items = [...document.querySelectorAll("#navLinks .item")].map(el=>({
-    title: el.querySelector(".navTitle").value.trim(),
-    url: el.querySelector(".navUrl").value.trim()
-  })).filter(x=>x.title && x.url);
+title: heroTitle.value || "Luxury Hair, Redefined",
+subtitle: heroSubtitle.value || "",
+buttonText: heroButton.value || "Book Appointment",
+buttonLink: heroLink.value || "login.html",
+image: media,
+enabled: true
 
-  await update(ref(db,"homepage/nav"),{
-    enabled: !!navEnabled.checked,
-    links: items
-  });
+});
 
-  alert("Navigation saved ✅");
+alert("Hero saved safely ✅");
+
 };
 
-//////////////////////////////
-// CURATED UI
-//////////////////////////////
-function renderCuratedItem(item = {}){
-  const wrap = document.createElement("div");
-  wrap.className = "item";
-  wrap.innerHTML = `
-    <label>Title</label>
-    <input class="cTitle" value="${escapeHtml(item.title || "")}" placeholder="Curated Style">
 
-    <label>Image (upload)</label>
-    <input type="file" class="cFile" accept="image/*">
+////////////////////////////////////////////////
+//// NAV
+////////////////////////////////////////////////
 
-    ${item.image ? `<img class="thumb cPreview" src="${item.image}" alt="Curated preview">` : `<img class="thumb cPreview" style="display:none" alt="Curated preview">`}
+window.addNav = ()=>{
 
-    <div class="row">
-      <button type="button" class="danger" data-del>Delete</button>
+navLinks.innerHTML += `
+<div class="item">
+<input placeholder="Title" class="navTitle">
+<input placeholder="URL" class="navUrl">
+</div>
+`;
+
+};
+
+window.saveNav = async()=>{
+
+const links = [...document.querySelectorAll(".item")].map(i=>({
+
+title:i.querySelector(".navTitle").value,
+url:i.querySelector(".navUrl").value
+
+}));
+
+await set(ref(db,"homepage/nav"),{links});
+
+alert("Nav saved");
+
+};
+////////////////////////////////////////////////
+//// RENDER HELPERS
+////////////////////////////////////////////////
+
+function renderCuratedItem(item = {}) {
+  curatedWrap.innerHTML += `
+    <div class="item">
+      <input placeholder="Title" class="cTitle" value="${item.title || ""}">
+      <input type="file" class="cFile">
+      ${item.image ? `<img src="${item.image}" style="width:80px;margin-top:10px;border-radius:8px">` : ""}
+      <button onclick="this.parentElement.remove()">Delete</button>
     </div>
   `;
-  wrap.querySelector("[data-del]").addEventListener("click", ()=> wrap.remove());
+}
+function renderServiceItem(item = {}) {
+  servicesWrap.innerHTML += `
+    <div class="item">
 
-  // preview newly selected image
-  const file = wrap.querySelector(".cFile");
-  const img = wrap.querySelector(".cPreview");
-  file.addEventListener("change", ()=>{
-    const f = file.files?.[0];
-    if(!f){ return; }
-    img.src = URL.createObjectURL(f);
-    img.style.display = "block";
-  });
+      <input
+        placeholder="Title"
+        class="sTitle"
+        value="${item.title || ""}"
+      >
 
-  curatedWrap.appendChild(wrap);
+      <input
+        placeholder="Text"
+        class="sText"
+        value="${item.text || ""}"
+      >
+
+      <input
+        placeholder="Link"
+        class="sLink"
+        value="${item.link || ""}"
+      >
+
+      <label>Service Video</label>
+      <input type="file" class="sVideo" accept="video/*">
+
+      ${
+        item.video
+          ? `
+            <video
+              src="${item.video}"
+              muted
+              autoplay
+              loop
+              playsinline
+              style="width:120px;margin-top:12px;border-radius:10px"
+            ></video>
+          `
+          : `<small style="opacity:.6">No video uploaded yet</small>`
+      }
+
+      <button onclick="this.parentElement.remove()">Delete</button>
+
+    </div>
+  `;
 }
 
-window.addCurated = ()=> renderCuratedItem();
+////////////////////////////////////////////////
+//// CURATED
+////////////////////////////////////////////////
 
-window.saveCurated = async ()=>{
-  const items = [];
+////////////////////////////////////////////////
+//// CURATED (PERSISTENT)
+////////////////////////////////////////////////
+
+window.addCurated = () => renderCuratedItem();
+
+window.saveCurated = async()=>{
+
+  const items=[];
 
   for(const el of document.querySelectorAll("#curatedWrap .item")){
-    const title = el.querySelector(".cTitle").value.trim() || "Curated Style";
-    const file = el.querySelector(".cFile").files?.[0];
-    const existing = el.querySelector(".cPreview")?.src || "";
 
-    let image = existing;
-    if(file) image = await upload(file);
+    let img = el.querySelector("img")?.src || "";
 
-    // keep only valid
-    if(image) items.push({ title, image });
+    if(el.querySelector(".cFile").files[0]){
+      img = await upload(el.querySelector(".cFile").files[0]);
+    }
+
+    items.push({
+      title: el.querySelector(".cTitle").value || "Curated Style",
+      image: img
+    });
   }
 
   await update(ref(db,"homepage/curated"),{
-    enabled: !!curatedEnabled.checked,
-    items
+    items,
+    enabled:true
   });
 
-  alert("Curated saved ✅");
+  alert("Curated saved safely ✅");
 };
 
-//////////////////////////////
-// SERVICES UI
-//////////////////////////////
-function renderServiceItem(item = {}){
-  const wrap = document.createElement("div");
-  wrap.className = "item";
-  wrap.innerHTML = `
-    <label>Title</label>
-    <input class="sTitle" value="${escapeHtml(item.title || "")}" placeholder="Service title">
+////////////////////////////////////////////////
+//// SERVICES
+////////////////////////////////////////////////
 
-    <label>Text</label>
-    <input class="sText" value="${escapeHtml(item.text || "")}" placeholder="Short description">
+window.addService = ()=>{
 
-    <label>Link</label>
-    <input class="sLink" value="${escapeHtml(item.link || "")}" placeholder="login.html">
+servicesWrap.innerHTML += `
+<div class="item">
+<input placeholder="Title" class="sTitle">
+<input placeholder="Text" class="sText">
+<input placeholder="Link" class="sLink">
+<input type="file" class="sVideo">
+</div>
+`;
 
-    <label>Service Video (upload)</label>
-    <input type="file" class="sVideo" accept="video/*">
+};
 
-    ${
-      item.video
-        ? `<video class="sPreview" src="${item.video}" muted autoplay loop playsinline style="width:160px;margin-top:12px;border-radius:12px;border:1px solid #eee"></video>`
-        : `<video class="sPreview" muted autoplay loop playsinline style="width:160px;margin-top:12px;border-radius:12px;border:1px solid #eee;display:none"></video>`
-    }
+////////////////////////////////////////////////
+//// SERVICES (PERSISTENT)
+////////////////////////////////////////////////
 
-    <div class="row">
-      <button type="button" class="danger" data-del>Delete</button>
-    </div>
-  `;
+window.addService = () => renderServiceItem();
 
-  wrap.querySelector("[data-del]").addEventListener("click", ()=> wrap.remove());
+window.saveServices = async()=>{
 
-  // preview selected video
-  const file = wrap.querySelector(".sVideo");
-  const vid = wrap.querySelector(".sPreview");
-  file.addEventListener("change", ()=>{
-    const f = file.files?.[0];
-    if(!f){ return; }
-    vid.src = URL.createObjectURL(f);
-    vid.style.display = "block";
-    vid.play?.().catch(()=>{});
-  });
-
-  servicesWrap.appendChild(wrap);
-}
-
-window.addService = ()=> renderServiceItem();
-
-window.saveServices = async ()=>{
   const services = [];
 
   for(const el of document.querySelectorAll("#servicesWrap .item")){
-    const title = el.querySelector(".sTitle").value.trim() || "Service";
-    const text  = el.querySelector(".sText").value.trim() || "";
-    const link  = el.querySelector(".sLink").value.trim() || "login.html";
 
-    const file = el.querySelector(".sVideo").files?.[0];
-    const existing = el.querySelector(".sPreview")?.src || "";
+    let video = el.querySelector("video")?.src || "";
 
-    let video = existing;
-    if(file) video = await upload(file);
+    if(el.querySelector(".sVideo").files[0]){
+      video = await upload(el.querySelector(".sVideo").files[0]);
+    }
 
-    services.push({ title, text, link, video });
+    services.push({
+      title: el.querySelector(".sTitle").value || "Service",
+      text: el.querySelector(".sText").value || "",
+      link: el.querySelector(".sLink").value || "login.html",
+      video
+    });
   }
 
   await update(ref(db,"homepage/services"),{
-    enabled: !!servicesEnabled.checked,
-    items: services
+    items: services,
+    enabled: true
   });
 
-  alert("Services saved ✅");
+  alert("Services saved safely ✅");
 };
 
-//////////////////////////////
-// HERO SAVE + SHOP HERO SAVE
-//////////////////////////////
-window.saveHero = async ()=>{
-  let media = "";
 
-  const file = heroFile.files?.[0];
-  if(file){
-    media = await upload(file);
-  }else{
-    const snap = await get(ref(db,"homepage/hero"));
-    media = snap.val()?.image || "";
-  }
+////////////////////////////////////////////////
+//// SHOP HERO
+////////////////////////////////////////////////
 
-  await update(ref(db,"homepage/hero"),{
-    enabled: !!heroEnabled.checked,
-    title: heroTitle.value || "",
-    subtitle: heroSubtitle.value || "",
-    buttonText: heroButton.value || "",
-    buttonLink: heroLink.value || "",
-    image: media
-  });
+window.saveShopHero = async()=>{
 
-  alert("Hero saved ✅");
+let img="";
+
+if(shopFile.files[0]){
+img = await upload(shopFile.files[0]);
+}else{
+const snap = await get(ref(db,"homepage/shopHero"));
+img = snap.val()?.image || "";
+}
+
+await update(ref(db,"homepage/shopHero"),{
+
+title: shopTitle.value || "Shop Our Signature Styles",
+button: shopButton.value || "Shop Now",
+link: shopLink.value || "shop.html",
+image: img,
+enabled:true
+
+});
+
+alert("Shop hero saved safely");
+
 };
+///////////////////////////////////////////
+//// AUTO LOAD (VERY IMPORTANT)
+////////////////////////////////////////////////
 
-window.saveShopHero = async ()=>{
-  let img = "";
+///////////////////////////////////////////
+//// AUTO LOAD (POPULATES ADMIN)
+////////////////////////////////////////////////
 
-  const file = shopFile.files?.[0];
-  if(file){
-    img = await upload(file);
-  }else{
-    const snap = await get(ref(db,"homepage/shopHero"));
-    img = snap.val()?.image || "";
-  }
-
-  await update(ref(db,"homepage/shopHero"),{
-    enabled: !!shopEnabled.checked,
-    title: shopTitle.value || "",
-    button: shopButton.value || "",
-    link: shopLink.value || "",
-    image: img
-  });
-
-  alert("Shop hero saved ✅");
-};
-
-//////////////////////////////
-// AUTO LOAD (populate admin)
-//////////////////////////////
 async function load(){
-  // HERO
-  const heroSnap = await get(ref(db,"homepage/hero"));
-  if(heroSnap.exists()){
-    const h = heroSnap.val() || {};
-    heroEnabled.checked = (h.enabled !== false);
-    heroTitle.value = h.title || "";
-    heroSubtitle.value = h.subtitle || "";
-    heroButton.value = h.buttonText || "";
-    heroLink.value = h.buttonLink || "";
-    if(h.image){
-      heroPreview.src = h.image;
-      heroPreview.style.display = "block";
-    }
-  }else{
-    heroEnabled.checked = true;
-  }
-
-  // NAV
-  const navSnap = await get(ref(db,"homepage/nav"));
-  navLinks.innerHTML = "";
-  if(navSnap.exists()){
-    const n = navSnap.val() || {};
-    navEnabled.checked = (n.enabled !== false);
-    (n.links || []).forEach(renderNavItem);
-  }else{
-    navEnabled.checked = true;
-  }
 
   // CURATED
   const curatedSnap = await get(ref(db,"homepage/curated"));
-  curatedWrap.innerHTML = "";
-  if(curatedSnap.exists()){
-    const c = curatedSnap.val() || {};
-    curatedEnabled.checked = (c.enabled !== false);
-    (c.items || []).forEach(renderCuratedItem);
-  }else{
-    curatedEnabled.checked = true;
+  if(curatedSnap.exists() && curatedSnap.val().items){
+    curatedWrap.innerHTML = "";
+    curatedSnap.val().items.forEach(item=>{
+      renderCuratedItem(item);
+    });
   }
 
   // SERVICES
   const servicesSnap = await get(ref(db,"homepage/services"));
-  servicesWrap.innerHTML = "";
-  if(servicesSnap.exists()){
-    const s = servicesSnap.val() || {};
-    servicesEnabled.checked = (s.enabled !== false);
-    (s.items || []).forEach(renderServiceItem);
-  }else{
-    servicesEnabled.checked = true;
+  if(servicesSnap.exists() && servicesSnap.val().items){
+    servicesWrap.innerHTML = "";
+    servicesSnap.val().items.forEach(item=>{
+      renderServiceItem(item);
+    });
   }
 
-  // SHOP HERO
-  const shopSnap = await get(ref(db,"homepage/shopHero"));
-  if(shopSnap.exists()){
-    const sh = shopSnap.val() || {};
-    shopEnabled.checked = (sh.enabled !== false);
-    shopTitle.value = sh.title || "";
-    shopButton.value = sh.button || "";
-    shopLink.value = sh.link || "";
-    if(sh.image){
-      shopPreview.src = sh.image;
-      shopPreview.style.display = "block";
-    }
-  }else{
-    shopEnabled.checked = true;
-  }
 }
+
 load();
 
-//////////////////////////////
-// small util to prevent breaking values in inputs
-//////////////////////////////
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+
 </script>
 
 </body>
 </html>
+
+
+
