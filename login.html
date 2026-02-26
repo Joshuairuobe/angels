@@ -181,7 +181,7 @@ button:disabled {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
 /* 🔥 Firebase */
 const firebaseConfig = {
@@ -213,76 +213,73 @@ form.addEventListener("submit", async (e) => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
- try {
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  const user = cred.user;
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
 
-  // ✅ ADMIN ALWAYS WINS
-  const token = await user.getIdTokenResult();
+    // ✅ ADMIN ALWAYS WINS
+    const token = await user.getIdTokenResult();
+    if (token.claims.admin === true) {
+      window.location.href = "admin.html";
+      return;
+    }
 
-  if (token.claims.admin === true) {
-    window.location.href = "admin.html";
-    return;
+    // ✅ Email verification
+    if (!user.emailVerified) {
+      window.location.href = "verify-email.html";
+      return;
+    }
+
+    // 🔎 Load profile (create if missing)
+    const userRef = ref(db, `users/${user.uid}`);
+    const profileSnap = await get(userRef);
+
+    let profile = null;
+
+    if (!profileSnap.exists()) {
+      profile = {
+        uid: user.uid,
+        email: user.email,
+        role: "client",
+        name: user.displayName || "Customer",
+        profileComplete: true,
+        createdAt: Date.now(),
+        phoneVerified: false
+      };
+      await set(userRef, profile);
+    } else {
+      profile = profileSnap.val();
+    }
+
+    // ✅ Phone verification (ONCE ONLY)
+    if (!profile?.phoneVerified) {
+      window.location.href = "verify-phone.html";
+      return;
+    }
+
+    // 🔁 Role-based routing
+    const role = profile?.role || "client";
+
+    if (role === "stylist") {
+      window.location.href = "stylist-dashboard.html";
+    } else {
+      window.location.href = "booking.html";
+    }
+
+  } catch (err) {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign In";
+
+    if (err.code === "auth/wrong-password") {
+      errorMessage.textContent = "Incorrect password";
+    } else if (err.code === "auth/user-not-found") {
+      errorMessage.textContent = "No account found with this email";
+    } else {
+      errorMessage.textContent = err.message.replace("Firebase:", "");
+    }
+
+    errorMessage.classList.add("show");
   }
-// Email verification (admins can bypass if you want; currently admin already returned above)
-if (!user.emailVerified) {
-  window.location.href = "verify-email.html";
-  return;
-}
-
-// Load profile
-const profileSnap = await get(ref(db, `users/${user.uid}`));
-
-if (!profileSnap.exists()) {
-  // User exists in Auth but did not complete OTP/DB write
-  window.location.href = "finish-signup.html";
-  return;
-}
-
-const profile = profileSnap.val();
-
-// Enforce required fields
-const nameOk = profile?.name && String(profile.name).trim().length >= 2;
-const phoneOk = profile?.phone && /^\+\d{8,15}$/.test(String(profile.phone).trim());
-const phoneVerifiedOk = profile?.phoneVerified === true;
-
-// If incomplete, force user to finish profile / phone verification
-if (!nameOk || !phoneOk) {
-  window.location.href = "complete-profile.html";
-  return;
-}
-
-if (!phoneVerifiedOk) {
-  window.location.href = "finish-signup.html";
-  return;
-}
-
-// Role-based routing
-const role = profile?.role ? profile.role : "client";
-if (role === "stylist") {
-  window.location.href = "stylist-dashboard.html";
-} else {
-  window.location.href = "booking.html";
-}
-
-// 🔁 fallback to role-based routing
-
-
-} catch (err) {
-  loginBtn.disabled = false;
-  loginBtn.textContent = "Sign In";
-
-  if (err.code === "auth/wrong-password") {
-    errorMessage.textContent = "Incorrect password";
-  } else if (err.code === "auth/user-not-found") {
-    errorMessage.textContent = "No account found with this email";
-  } else {
-    errorMessage.textContent = err.message.replace("Firebase:", "");
-  }
-
-  errorMessage.classList.add("show");
-}
-
 });
 
 /* Password toggle */
