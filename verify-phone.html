@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verify Phone — Angels Hair Mall</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<style>
+body {
+  font-family: Inter, system-ui, sans-serif;
+  max-width: 480px;
+  margin: 80px auto;
+  padding: 0 20px;
+}
+h1 { font-size: 28px; margin-bottom: 10px; }
+p { color:#444; line-height:1.6; }
+input {
+  width:100%;
+  padding:14px;
+  margin-top:14px;
+  border:1px solid #000;
+}
+button {
+  margin-top:18px;
+  padding:14px;
+  width:100%;
+  border:1px solid #000;
+  background:#000;
+  color:#fff;
+  cursor:pointer;
+}
+button:disabled { opacity:0.6; cursor:not-allowed; }
+.msg { margin-top:14px; font-size:14px; }
+.ok { color: green; }
+</style>
+</head>
+
+<body>
+<h1>Verify your phone number</h1>
+<p>We’ll send you a one-time code by SMS. This only happens once.</p>
+
+<input id="phone" placeholder="+447XXXXXXXXX" />
+<div id="recaptcha"></div>
+<button id="sendCode">Send code</button>
+
+<input id="code" placeholder="Enter SMS code" style="display:none" />
+<button id="confirmCode" style="display:none">Confirm code</button>
+
+<div class="msg" id="msg"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
+  authDomain: "angelshairmall.firebaseapp.com",
+  databaseURL: "https://angelshairmall-default-rtdb.firebaseio.com",
+  projectId: "angelshairmall",
+  messagingSenderId: "374317477500",
+  appId: "1:374317477500:web:ba6aad4bfba04a9ae6e3f9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const phoneInput = document.getElementById("phone");
+const sendBtn = document.getElementById("sendCode");
+const codeInput = document.getElementById("code");
+const confirmBtn = document.getElementById("confirmCode");
+const msg = document.getElementById("msg");
+
+window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
+  size: "normal"
+});
+
+let confirmationResult = null;
+
+sendBtn.onclick = async () => {
+  try {
+    msg.textContent = "Sending code...";
+    confirmationResult = await signInWithPhoneNumber(auth, phoneInput.value, window.recaptchaVerifier);
+    codeInput.style.display = "block";
+    confirmBtn.style.display = "block";
+    msg.textContent = "Code sent! Check your SMS.";
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+};
+
+confirmBtn.onclick = async () => {
+  try {
+    const result = await confirmationResult.confirm(codeInput.value);
+    const user = result.user;
+
+    await update(ref(db, `users/${user.uid}`), {
+      phone: phoneInput.value,
+      phoneVerified: true
+    });
+
+    msg.textContent = "Phone verified! Redirecting...";
+    msg.classList.add("ok");
+
+    setTimeout(() => {
+      window.location.href = "booking.html";
+    }, 1200);
+
+  } catch (e) {
+    msg.textContent = "Invalid code. Try again.";
+  }
+};
+</script>
+</body>
+</html>
