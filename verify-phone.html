@@ -79,8 +79,14 @@ button:disabled { opacity:0.6; cursor:not-allowed; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { 
+  getAuth, 
+  RecaptchaVerifier, 
+  PhoneAuthProvider, 
+  linkWithCredential, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
@@ -102,18 +108,33 @@ const codeInput = document.getElementById("code");
 const confirmBtn = document.getElementById("confirmCode");
 const msg = document.getElementById("msg");
 
+// Block access if not logged in
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // If already verified, don't let them redo it
+  const snap = await get(ref(db, `users/${user.uid}`));
+  if (snap.exists() && snap.val()?.phoneVerified === true) {
+    window.location.href = "booking.html";
+  }
+});
+
 window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha", {
   size: "normal"
 });
 
-let confirmationResult = null;
+let verificationId = null;
 
 sendBtn.onclick = async () => {
   try {
     const fullNumber = countryCode.value + phoneInput.value.replace(/\s+/g, "");
     msg.textContent = "Sending code...";
 
-    confirmationResult = await signInWithPhoneNumber(auth, fullNumber, window.recaptchaVerifier);
+    const provider = new PhoneAuthProvider(auth);
+    verificationId = await provider.verifyPhoneNumber(fullNumber, window.recaptchaVerifier);
 
     codeInput.style.display = "block";
     confirmBtn.style.display = "block";
@@ -126,8 +147,11 @@ sendBtn.onclick = async () => {
 
 confirmBtn.onclick = async () => {
   try {
-    const result = await confirmationResult.confirm(codeInput.value);
-    const user = result.user;
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not signed in.");
+
+    const cred = PhoneAuthProvider.credential(verificationId, codeInput.value);
+    await linkWithCredential(user, cred);
 
     const fullNumber = countryCode.value + phoneInput.value.replace(/\s+/g, "");
 
@@ -144,7 +168,7 @@ confirmBtn.onclick = async () => {
     }, 1200);
 
   } catch (e) {
-    msg.textContent = "Invalid code. Try again.";
+    msg.textContent = "Invalid code or number already linked.";
   }
 };
 </script>
