@@ -14,12 +14,27 @@ body {
 }
 h1 { font-size: 28px; margin-bottom: 10px; }
 p { color:#444; line-height:1.6; }
-input {
-  width:100%;
-  padding:14px;
+
+.row {
+  display:flex;
+  gap:10px;
   margin-top:14px;
-  border:1px solid #000;
 }
+
+select, input {
+  padding:14px;
+  border:1px solid #000;
+  font-size:14px;
+}
+
+select {
+  width:38%;
+}
+
+input {
+  flex:1;
+}
+
 button {
   margin-top:18px;
   padding:14px;
@@ -30,6 +45,7 @@ button {
   cursor:pointer;
 }
 button:disabled { opacity:0.6; cursor:not-allowed; }
+
 .msg { margin-top:14px; font-size:14px; }
 .ok { color: green; }
 </style>
@@ -39,8 +55,21 @@ button:disabled { opacity:0.6; cursor:not-allowed; }
 <h1>Verify your phone number</h1>
 <p>We’ll send you a one-time code by SMS. This only happens once.</p>
 
-<input id="phone" placeholder="+447XXXXXXXXX" />
+<div class="row">
+  <select id="countryCode">
+    <option value="+44">🇬🇧 UK (+44)</option>
+    <option value="+234">🇳🇬 Nigeria (+234)</option>
+    <option value="+1">🇺🇸 USA (+1)</option>
+    <option value="+33">🇫🇷 France (+33)</option>
+    <option value="+351">🇵🇹 Portugal (+351)</option>
+    <option value="+34">🇪🇸 Spain (+34)</option>
+  </select>
+
+  <input id="phone" placeholder="Phone number" />
+</div>
+
 <div id="recaptcha"></div>
+
 <button id="sendCode">Send code</button>
 
 <input id="code" placeholder="Enter SMS code" style="display:none" />
@@ -67,6 +96,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 const phoneInput = document.getElementById("phone");
+const countryCode = document.getElementById("countryCode");
 const sendBtn = document.getElementById("sendCode");
 const codeInput = document.getElementById("code");
 const confirmBtn = document.getElementById("confirmCode");
@@ -80,13 +110,17 @@ let confirmationResult = null;
 
 sendBtn.onclick = async () => {
   try {
+    const fullNumber = countryCode.value + phoneInput.value.replace(/\s+/g, "");
     msg.textContent = "Sending code...";
-    confirmationResult = await signInWithPhoneNumber(auth, phoneInput.value, window.recaptchaVerifier);
+
+    confirmationResult = await signInWithPhoneNumber(auth, fullNumber, window.recaptchaVerifier);
+
     codeInput.style.display = "block";
     confirmBtn.style.display = "block";
     msg.textContent = "Code sent! Check your SMS.";
+
   } catch (e) {
-    msg.textContent = e.message;
+    msg.textContent = e.message.replace("Firebase:", "");
   }
 };
 
@@ -95,8 +129,10 @@ confirmBtn.onclick = async () => {
     const result = await confirmationResult.confirm(codeInput.value);
     const user = result.user;
 
+    const fullNumber = countryCode.value + phoneInput.value.replace(/\s+/g, "");
+
     await update(ref(db, `users/${user.uid}`), {
-      phone: phoneInput.value,
+      phone: fullNumber,
       phoneVerified: true
     });
 
