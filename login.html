@@ -252,10 +252,11 @@ form.addEventListener("submit", async (e) => {
     }
 
     // ✅ Phone verification (ONCE ONLY)
-    if (!profile?.phoneVerified) {
-      window.location.href = "verify-phone.html";
-      return;
-    }
+    // ✅ Phone verification (ONCE ONLY)
+if (profile?.phoneVerified !== true) {
+  window.location.href = "verify-phone.html";
+  return;
+}
 
     // 🔁 Role-based routing
     const role = profile?.role || "client";
