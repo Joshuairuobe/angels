@@ -224,13 +224,13 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // ✅ Email verification
+    // ✅ Email verification only (no phone checks anymore)
     if (!user.emailVerified) {
       window.location.href = "verify-email.html";
       return;
     }
 
-    // 🔎 Load profile (create if missing)
+    // 🔎 Load profile (create one if missing)
     const userRef = ref(db, `users/${user.uid}`);
     const profileSnap = await get(userRef);
 
@@ -243,20 +243,12 @@ form.addEventListener("submit", async (e) => {
         role: "client",
         name: user.displayName || "Customer",
         profileComplete: true,
-        createdAt: Date.now(),
-        phoneVerified: false
+        createdAt: Date.now()
       };
       await set(userRef, profile);
     } else {
       profile = profileSnap.val();
     }
-
-    // ✅ Phone verification (ONCE ONLY)
-    // ✅ Phone verification (ONCE ONLY)
-if (profile?.phoneVerified !== true) {
-  window.location.href = "verify-phone.html";
-  return;
-}
 
     // 🔁 Role-based routing
     const role = profile?.role || "client";
