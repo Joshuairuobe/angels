@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1299,7 +1300,7 @@ function renderStylists() {
   stylistGrid.innerHTML = matchingStylists.map(uid => {
     const profile = stylistsIndex[uid]?.publicProfile || {};
 
-    const name = profile.name || "Stylist";
+    const name = profile.displayName?.trim() || profile.name || "Stylist";
     const profession = profile.profession || "Stylist";
     const photoURL = profile.photoURL || "";
 
@@ -1359,29 +1360,6 @@ function syncSelectedStylistCard(){
   selectedName.textContent = name;
   selectedProf.textContent = prof;
   selectedAvatar.style.backgroundImage = u.photoURL ? `url('${u.photoURL}')` : "";
-}
-async function notifyStylistViaFormspree(details) {
-  const stylist = stylistsIndex[details.stylistId]?.publicProfile || {};
-  const stylistName = stylist.displayName?.trim() || stylist.name || "Stylist";
-  const stylistRole = stylist.profession || stylist.role || "Stylist";
-
-  const payload = {
-    stylist: `${stylistName} (${stylistRole})`,
-    client: details.clientName || details.clientEmail || "Client",
-    clientEmail: details.clientEmail || "",
-    services: (details.services || []).map(s => s.name).join(" + "),
-    date: details.date,
-    time: details.time,
-    notes: details.notes || "—"
-  };
-
-  const res = await fetch("https://formspree.io/f/mreaadoz", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) throw new Error("Formspree failed");
 }
 
 /* ===================== DATE & TIME ===================== */
@@ -1717,15 +1695,33 @@ function resetAfterBooking(){
   timeSelect.value = "";
   summaryBox.style.display = "none";
 }
-async function createBookingFromDetails(details, { depositPaid, status = "pending", sessionId = null } = {}) {
+async function createBookingFromDetails(
+  details,
+  { depositPaid, status = "pending", sessionId = null } = {}
+) {
   if (!currentUser) throw new Error("Not signed in");
-  if (!details?.stylistId || !details?.date || !details?.time) throw new Error("Missing booking details");
+  if (!details?.stylistId || !details?.date || !details?.time)
+    throw new Error("Missing booking details");
 
-  const bookingRef = push(ref(db, "bookings"));
-  const bookingId = bookingRef.key;
+  // ✅ idempotency key required
+  if (!details.bookingKey) throw new Error("Missing bookingKey");
+
+  const bookingId = details.bookingKey;
+  const bookingRef = ref(db, `bookings/${bookingId}`);
+
+  // ✅ STOP DUPLICATES: if booking already exists, do nothing
+  const existing = await get(bookingRef);
+  if (existing.exists()) return bookingId;
 
   const clientSnap = await get(ref(db, `users/${currentUser.uid}`));
   const client = clientSnap.exists() ? clientSnap.val() : {};
+
+  // (optional) stylist details if you want stored
+  const styProfile = getPublicProfile(details.stylistId);
+  const stylistName =
+    (styProfile.displayName?.trim() || styProfile.name || "Stylist");
+  const stylistProfession =
+    (styProfile.profession || styProfile.role || "Stylist");
 
   const payload = {
     bookingId,
@@ -1738,13 +1734,19 @@ async function createBookingFromDetails(details, { depositPaid, status = "pendin
 
     stylistId: details.stylistId,
 
-    serviceName: details.serviceName || (details.services || []).map(s => s.name).join(" + "),
+    // optional but useful:
+    stylistName,
+    stylistProfession,
 
-    services: (details.services || []).map(s => ({
+    serviceName:
+      details.serviceName ||
+      (details.services || []).map((s) => s.name).join(" + "),
+
+    services: (details.services || []).map((s) => ({
       serviceId: s.serviceId,
       name: s.name,
       durationMins: Number(s.durationMins || 0),
-      price: Number(s.price || 0)
+      price: Number(s.price || 0),
     })),
 
     totalDurationMins: Number(details.totalDurationMins || 0),
@@ -1752,7 +1754,9 @@ async function createBookingFromDetails(details, { depositPaid, status = "pendin
     date: details.date,
     time: details.time,
     startTime: details.startTime || details.time,
-    endTime: details.endTime || addMinsToTime(details.time, Number(details.totalDurationMins || 0)),
+    endTime:
+      details.endTime ||
+      addMinsToTime(details.time, Number(details.totalDurationMins || 0)),
 
     price: Number(details.price || 0),
     deposit: Number(details.deposit || DEPOSIT),
@@ -1761,17 +1765,15 @@ async function createBookingFromDetails(details, { depositPaid, status = "pendin
     status,
     depositPaid: !!depositPaid,
 
-    // helpful audit fields
     stripeSessionId: sessionId || null,
 
     createdAt: Date.now(),
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   };
 
   await set(bookingRef, payload);
   return bookingId;
 }
-
 /* ===================== MY APPOINTMENTS + CANCEL ===================== */
 async function loadAppointments(){
   appointmentsList.innerHTML = `<div class="px">Loading…</div>`;
@@ -1797,8 +1799,17 @@ const all = Object.entries(snap.val() || {})
     appointmentsList.innerHTML = all.map(b=>{
      const sty = getPublicProfile(b.stylistId);
 
-      const styName = sty.displayName?.trim() || sty.name || "Stylist";
-      const styProf = sty.profession || sty.role || "Stylist";
+const styName =
+  (b.stylistName?.trim()) ||
+  (sty.displayName?.trim()) ||
+  sty.name ||
+  "Stylist";
+
+const styProf =
+  b.stylistProfession ||
+  sty.profession ||
+  sty.role ||
+  "Stylist";
 
       const st = (b.status||"pending").toLowerCase();
       const canCancel = (st !== "cancelled" && st !== "rejected");
@@ -1906,7 +1917,8 @@ payDepositBtn.addEventListener("click", () => {
       deposit: 10,
       remaining: Math.max(0, price - 10),
     };
-
+// ✅ idempotency key (prevents duplicates)
+bookingDetails.bookingKey = crypto.randomUUID();
     localStorage.setItem("pendingBookingDetails", JSON.stringify(bookingDetails));
 
     // 🔥 Redirect to Stripe
