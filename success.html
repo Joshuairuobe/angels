@@ -36,6 +36,7 @@ button{
   letter-spacing:.14em;
 }
 button:hover{ filter:brightness(1.05); }
+button:disabled{ opacity:.6; cursor:not-allowed; }
 .toast{ margin-top:12px; color:#1f7a3f; }
 </style>
 </head>
@@ -53,7 +54,7 @@ button:hover{ filter:brightness(1.05); }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAZ_6nBhOpzPBtYunilmDhcKd0Woe1PWYs",
@@ -69,13 +70,16 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 const confirmBtn = document.getElementById("confirmBtn");
-const toast = document.getElementById("toast");
+const toastEl = document.getElementById("toast");
 
 onAuthStateChanged(auth, (user) => {
   if (!user) window.location.href = "login.html";
 });
 
 confirmBtn.addEventListener("click", async () => {
+  // extra safety against double-click / double-tap
+  if (confirmBtn.dataset.busy === "1") return;
+  confirmBtn.dataset.busy = "1";
   confirmBtn.disabled = true;
 
   try {
@@ -83,28 +87,110 @@ confirmBtn.addEventListener("click", async () => {
     if (!raw) throw new Error("No booking found. Please start again.");
 
     const details = JSON.parse(raw);
-    const bookingRef = push(ref(db, "bookings"));
+    const user = auth.currentUser;
+    if (!user) throw new Error("You are not logged in.");
 
-    await set(bookingRef, {
-      ...details,
-      clientId: auth.currentUser.uid,
+    // ✅ Must exist (set this on booking.html BEFORE redirect to Stripe)
+    // details.bookingKey = crypto.randomUUID();
+    if (!details.bookingKey) throw new Error("Missing bookingKey. Please start again.");
+
+    // ✅ fixed booking id (idempotent) — prevents duplicates
+    const bookingId = details.bookingKey;
+    const bookingRef = ref(db, `bookings/${bookingId}`);
+
+    // ✅ stop duplicates if this was already confirmed
+    const existing = await get(bookingRef);
+    if (existing.exists()) {
+      localStorage.removeItem("pendingBookingDetails");
+      toastEl.textContent = "✅ Booking already confirmed! Redirecting...";
+      setTimeout(() => {
+        window.location.href = "booking.html";
+      }, 800);
+      return;
+    }
+
+    const booking = {
+      bookingId, // ✅ keep id inside record too
+
+      clientId: user.uid,
+      clientEmail: user.email || "",
+
+      stylistId: details.stylistId,
+      services: details.services || [],
+      totalDurationMins: Number(details.totalDurationMins || 0),
+
+      date: details.date,
+      time: details.time,
+      startTime: details.startTime || details.time,
+      endTime: details.endTime || details.time,
+
+      price: Number(details.price || 0),
+      deposit: Number(details.deposit || 10),
+      remaining: Number(
+        details.remaining ||
+        (Number(details.price || 0) - Number(details.deposit || 10))
+      ),
+
       depositPaid: true,
       status: "pending",
-      createdAt: Date.now()
-    });
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await set(bookingRef, booking);
+
+    // 🔔 Notify stylist AFTER booking is created (non-blocking)
+    try {
+      await notifyStylistViaFormspree({
+        stylistId: details.stylistId,
+        clientName: user.displayName || "",
+        clientEmail: user.email || "",
+        services: details.services || [],
+        date: details.date,
+        time: details.time,
+        notes: details.notes || ""
+      });
+    } catch (err) {
+      console.warn("Stylist notification failed (non-blocking):", err);
+    }
 
     localStorage.removeItem("pendingBookingDetails");
-    toast.textContent = "✅ Booking confirmed!";
+    toastEl.textContent = "✅ Booking confirmed! Redirecting...";
 
     setTimeout(() => {
       window.location.href = "booking.html";
     }, 1200);
 
   } catch (e) {
-    toast.textContent = e.message || "Could not confirm booking.";
+    console.error(e);
+    toastEl.textContent = e.message || "Could not confirm booking.";
     confirmBtn.disabled = false;
+    confirmBtn.dataset.busy = "0";
   }
 });
+
+async function notifyStylistViaFormspree(details) {
+  const payload = {
+    stylistId: details.stylistId,
+    client: details.clientName || details.clientEmail || "Client",
+    clientEmail: details.clientEmail || "",
+    services: (details.services || []).map(s => s.name).join(" + "),
+    date: details.date,
+    time: details.time,
+    notes: details.notes || "—"
+  };
+
+  const res = await fetch("https://formspree.io/f/mreaadoz", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    console.warn("Stylist email failed:", res.status);
+    return; // don't throw
+  }
+}
 </script>
 
 </body>
