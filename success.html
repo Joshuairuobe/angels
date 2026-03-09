@@ -47,10 +47,10 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
   <p>Your £10 deposit has been received.<br>
      Click below to confirm your booking.</p>
 
-  <button id="confirmBtn">Confirm booking</button>
+  
   <div class="toast" id="toast"></div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
@@ -69,53 +69,63 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-const confirmBtn = document.getElementById("confirmBtn");
 const toastEl = document.getElementById("toast");
+/* Initialize EmailJS */
+emailjs.init("zTUEr7ZAMLe7tBsay");
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) window.location.href = "login.html";
-});
+/* ✅ AUTO CONFIRM BOOKING AFTER STRIPE SUCCESS */
+onAuthStateChanged(auth, async (user) => {
 
-confirmBtn.addEventListener("click", async () => {
-  // extra safety against double-click / double-tap
-  if (confirmBtn.dataset.busy === "1") return;
-  confirmBtn.dataset.busy = "1";
-  confirmBtn.disabled = true;
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
 
   try {
+
     const raw = localStorage.getItem("pendingBookingDetails");
-    if (!raw) throw new Error("No booking found. Please start again.");
+    if (!raw) throw new Error("No booking found.");
 
     const details = JSON.parse(raw);
-    const user = auth.currentUser;
-    if (!user) throw new Error("You are not logged in.");
 
-    // ✅ Must exist (set this on booking.html BEFORE redirect to Stripe)
-    // details.bookingKey = crypto.randomUUID();
-    if (!details.bookingKey) throw new Error("Missing bookingKey. Please start again.");
+    if (!details.bookingKey)
+      throw new Error("Missing bookingKey.");
 
-    // ✅ fixed booking id (idempotent) — prevents duplicates
     const bookingId = details.bookingKey;
     const bookingRef = ref(db, `bookings/${bookingId}`);
 
-    // ✅ stop duplicates if this was already confirmed
+    /* ✅ Prevent duplicate bookings */
     const existing = await get(bookingRef);
+
     if (existing.exists()) {
+
       localStorage.removeItem("pendingBookingDetails");
+
       toastEl.textContent = "✅ Booking already confirmed! Redirecting...";
-      setTimeout(() => {
+
+      setTimeout(()=>{
         window.location.href = "booking.html";
-      }, 800);
+      },800);
+
       return;
     }
 
     const booking = {
-      bookingId, // ✅ keep id inside record too
+      bookingId,
 
       clientId: user.uid,
-      clientEmail: user.email || "",
+
+      clientEmail: details.clientEmail || user.email || "",
+      clientName: details.clientName || user.displayName || "Client",
+
+      clientPhone: details.clientPhone || "",
+      phone: details.clientPhone || "",
 
       stylistId: details.stylistId,
+
+      service: details.serviceName || "",
+      serviceName: details.serviceName || "",
+
       services: details.services || [],
       totalDurationMins: Number(details.totalDurationMins || 0),
 
@@ -126,21 +136,33 @@ confirmBtn.addEventListener("click", async () => {
 
       price: Number(details.price || 0),
       deposit: Number(details.deposit || 10),
+
       remaining: Number(
         details.remaining ||
         (Number(details.price || 0) - Number(details.deposit || 10))
       ),
 
+      notes: details.notes || "",
+
       depositPaid: true,
-      status: "pending",
+
+      /* Stripe succeeded so booking is confirmed */
+      status: "confirmed",
+
+      notification: {
+        clientConfirmationSent: false
+      },
+
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
 
     await set(bookingRef, booking);
+await sendClientConfirmation(details);
 
-    // 🔔 Notify stylist AFTER booking is created (non-blocking)
+    /* 🔔 Notify stylist */
     try {
+
       await notifyStylistViaFormspree({
         stylistId: details.stylistId,
         clientName: user.displayName || "",
@@ -150,26 +172,55 @@ confirmBtn.addEventListener("click", async () => {
         time: details.time,
         notes: details.notes || ""
       });
+
     } catch (err) {
-      console.warn("Stylist notification failed (non-blocking):", err);
+      console.warn("Stylist notification failed:", err);
     }
 
+
     localStorage.removeItem("pendingBookingDetails");
+
     toastEl.textContent = "✅ Booking confirmed! Redirecting...";
 
-    setTimeout(() => {
+    setTimeout(()=>{
       window.location.href = "booking.html";
-    }, 1200);
+    },1200);
 
-  } catch (e) {
+
+  } catch(e) {
+
     console.error(e);
     toastEl.textContent = e.message || "Could not confirm booking.";
-    confirmBtn.disabled = false;
-    confirmBtn.dataset.busy = "0";
+
   }
+
 });
 
+async function sendClientConfirmation(details){
+
+  const templateParams = {
+    client_name: details.clientName,
+    service: details.serviceName,
+    date: details.date,
+    time: details.time,
+    email: details.clientEmail
+  };
+
+  emailjs.send(
+    "service_sh63mwi",
+    "booking_confirmation",
+    templateParams
+  )
+  .then(function(response) {
+     console.log("Confirmation email sent", response.status);
+  }, function(error) {
+     console.error("Email failed", error);
+  });
+
+}
+/* 🔔 EMAIL STYLIST */
 async function notifyStylistViaFormspree(details) {
+
   const payload = {
     stylistId: details.stylistId,
     client: details.clientName || details.clientEmail || "Client",
@@ -182,16 +233,16 @@ async function notifyStylistViaFormspree(details) {
 
   const res = await fetch("https://formspree.io/f/mreaadoz", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type":"application/json"
+    },
     body: JSON.stringify(payload)
   });
 
-  if (!res.ok) {
-    console.warn("Stylist email failed:", res.status);
-    return; // don't throw
+  if(!res.ok){
+    console.warn("Stylist email failed:",res.status);
   }
-}
-</script>
 
-</body>
-</html>
+}
+
+</script>
