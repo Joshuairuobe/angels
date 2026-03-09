@@ -206,16 +206,22 @@ async function sendClientConfirmation(details){
     email: details.clientEmail
   };
 
-  emailjs.send(
-    "service_sh63mwi",
-    "booking_confirmation",
-    templateParams
-  )
-  .then(function(response) {
-     console.log("Confirmation email sent", response.status);
-  }, function(error) {
-     console.error("Email failed", error);
-  });
+  try {
+
+    const response = await emailjs.send(
+      "service_sh63mwi",
+      "booking_confirmation",
+      templateParams,
+      "zTUEr7ZAMLe7tBsay" // your public key
+    );
+
+    console.log("✅ Email sent", response);
+
+  } catch(error) {
+
+    console.error("❌ Email failed:", error);
+
+  }
 
 }
 /* 🔔 EMAIL STYLIST */
