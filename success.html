@@ -157,7 +157,12 @@ onAuthStateChanged(auth, async (user) => {
       updatedAt: Date.now()
     };
 
-    await set(bookingRef, booking);
+   await set(bookingRef, booking);
+
+console.log("BOOKING DETAILS:", details);
+console.log("CLIENT EMAIL:", details.clientEmail);
+console.log("AUTH EMAIL:", auth.currentUser.email);
+
 await sendClientConfirmation(details);
 
     /* 🔔 Notify stylist */
@@ -198,20 +203,25 @@ await sendClientConfirmation(details);
 
 async function sendClientConfirmation(details){
 
- const templateParams = {
-  client_name: details.clientName || auth.currentUser.displayName || "Client",
-  service: details.serviceName,
-  date: details.date,
-  time: details.time,
-  email: details.clientEmail || auth.currentUser.email
-};
+  const emailAddress = details.clientEmail || auth.currentUser.email;
+
+  console.log("Sending email to:", emailAddress);
+
+  const templateParams = {
+    client_name: details.clientName || "Client",
+    service: details.serviceName,
+    date: details.date,
+    time: details.time,
+    email: emailAddress
+  };
+
   try {
 
     const response = await emailjs.send(
       "service_sh63mwi",
       "booking_confirmation",
       templateParams,
-      "zTUEr7ZAMLe7tBsay" // your public key
+      "zTUEr7ZAMLe7tBsay"
     );
 
     console.log("✅ Email sent", response);
