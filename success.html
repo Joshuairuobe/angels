@@ -198,14 +198,13 @@ await sendClientConfirmation(details);
 
 async function sendClientConfirmation(details){
 
-  const templateParams = {
-    client_name: details.clientName,
-    service: details.serviceName,
-    date: details.date,
-    time: details.time,
-    email: details.clientEmail
-  };
-
+ const templateParams = {
+  client_name: details.clientName || auth.currentUser.displayName || "Client",
+  service: details.serviceName,
+  date: details.date,
+  time: details.time,
+  email: details.clientEmail || auth.currentUser.email
+};
   try {
 
     const response = await emailjs.send(
