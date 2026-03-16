@@ -23,20 +23,6 @@ body{
 }
 h1{ font-size:28px; margin-bottom:12px; }
 p{ color:#555; margin-bottom:22px; }
-button{
-  width:100%;
-  padding:14px;
-  border-radius:999px;
-  border:1px solid #111;
-  background:#111;
-  color:#fff;
-  cursor:pointer;
-  text-transform:uppercase;
-  font-size:12px;
-  letter-spacing:.14em;
-}
-button:hover{ filter:brightness(1.05); }
-button:disabled{ opacity:.6; cursor:not-allowed; }
 .toast{ margin-top:12px; color:#1f7a3f; }
 </style>
 </head>
@@ -45,12 +31,10 @@ button:disabled{ opacity:.6; cursor:not-allowed; }
 <div class="card">
   <h1>Payment successful 🎉</h1>
   <p>Your £10 deposit has been received.<br>
-     Click below to confirm your booking.</p>
-
-  
+     Confirming your booking now...</p>
   <div class="toast" id="toast"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
@@ -68,54 +52,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-
 const toastEl = document.getElementById("toast");
-/* Initialize EmailJS */
-emailjs.init("zTUEr7ZAMLe7tBsay");
 
-/* ✅ AUTO CONFIRM BOOKING AFTER STRIPE SUCCESS */
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
     window.location.href = "login.html";
     return;
   }
 
   try {
-
     const raw = localStorage.getItem("pendingBookingDetails");
     if (!raw) throw new Error("No booking found.");
 
     const details = JSON.parse(raw);
-
-    if (!details.bookingKey)
-      throw new Error("Missing bookingKey.");
+    if (!details.bookingKey) throw new Error("Missing bookingKey.");
 
     const bookingId = details.bookingKey;
     const bookingRef = ref(db, `bookings/${bookingId}`);
-
-    /* ✅ Prevent duplicate bookings */
     const existing = await get(bookingRef);
 
     if (existing.exists()) {
-
       localStorage.removeItem("pendingBookingDetails");
-
       toastEl.textContent = "✅ Booking already confirmed! Redirecting...";
 
-      setTimeout(()=>{
+      setTimeout(() => {
         window.location.href = "booking.html";
-      },800);
+      }, 800);
 
       return;
     }
 
+    const finalClientEmail = (details.clientEmail || user.email || "").trim();
+
     const booking = {
       bookingId,
-
       clientId: user.uid,
-
-      clientEmail: details.clientEmail || user.email || "",
+      clientEmail: finalClientEmail,
       clientName: details.clientName || user.displayName || "Client",
 
       clientPhone: details.clientPhone || "",
@@ -129,14 +101,13 @@ onAuthStateChanged(auth, async (user) => {
       services: details.services || [],
       totalDurationMins: Number(details.totalDurationMins || 0),
 
-      date: details.date,
-      time: details.time,
-      startTime: details.startTime || details.time,
-      endTime: details.endTime || details.time,
+      date: details.date || "",
+      time: details.time || "",
+      startTime: details.startTime || details.time || "",
+      endTime: details.endTime || details.time || "",
 
       price: Number(details.price || 0),
       deposit: Number(details.deposit || 10),
-
       remaining: Number(
         details.remaining ||
         (Number(details.price || 0) - Number(details.deposit || 10))
@@ -145,104 +116,54 @@ onAuthStateChanged(auth, async (user) => {
       notes: details.notes || "",
 
       depositPaid: true,
-
-      /* Stripe succeeded so booking is confirmed */
       status: "confirmed",
 
       notification: {
-        clientConfirmationSent: false
+        clientConfirmationSent: false,
+        clientConfirmationError: "",
+        stylistNotificationSent: false,
+        lastAttemptAt: Date.now()
       },
 
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
 
-   const finalClientEmail = (details.clientEmail || user.email || "").trim();
+    await set(bookingRef, booking);
 
-await set(bookingRef, {
-  ...booking,
-  clientEmail: finalClientEmail
-});
+    console.log("BOOKING DETAILS:", details);
+    console.log("DETAILS EMAIL:", JSON.stringify(details.clientEmail));
+    console.log("USER EMAIL:", JSON.stringify(user.email));
+    console.log("FINAL EMAIL:", JSON.stringify(finalClientEmail));
 
-console.log("BOOKING DETAILS:", details);
-console.log("DETAILS EMAIL:", JSON.stringify(details.clientEmail));
-console.log("USER EMAIL:", JSON.stringify(user.email));
-console.log("FINAL EMAIL:", JSON.stringify(finalClientEmail));
-
-await sendClientConfirmation({
-  ...details,
-  clientEmail: finalClientEmail
-});
-    /* 🔔 Notify stylist */
     try {
-
       await notifyStylistViaFormspree({
         stylistId: details.stylistId,
-        clientName: user.displayName || "",
-        clientEmail: user.email || "",
+        clientName: user.displayName || details.clientName || "",
+        clientEmail: finalClientEmail,
         services: details.services || [],
-        date: details.date,
-        time: details.time,
+        date: details.date || "",
+        time: details.time || "",
         notes: details.notes || ""
       });
-
     } catch (err) {
       console.warn("Stylist notification failed:", err);
     }
 
-
     localStorage.removeItem("pendingBookingDetails");
-
     toastEl.textContent = "✅ Booking confirmed! Redirecting...";
 
-    setTimeout(()=>{
+    setTimeout(() => {
       window.location.href = "booking.html";
-    },1200);
+    }, 1200);
 
-
-  } catch(e) {
-
+  } catch (e) {
     console.error(e);
     toastEl.textContent = e.message || "Could not confirm booking.";
-
   }
-
 });
 
-async function sendClientConfirmation(details) {
-  const emailAddress = (details.clientEmail || "").trim();
-
-  if (!emailAddress) {
-    console.error("❌ No customer email found.");
-    return;
-  }
-
-  const templateParams = {
-    client_name: details.clientName || "Client",
-    service: details.serviceName || "",
-    date: details.date || "",
-    time: details.time || "",
-    email: emailAddress
-  };
-
-  console.log("EmailJS params:", templateParams);
-
-  try {
-    const response = await emailjs.send(
-      "service_sh63mwi",
-      "booking_confirmation",
-      templateParams,
-      "zTUEr7ZAMLe7tBsay"
-    );
-
-    console.log("✅ Email sent", response);
-  } catch (error) {
-    console.error("❌ Email failed:", error);
-  }
-}
-/* 🔔 EMAIL STYLIST */
 async function notifyStylistViaFormspree(details) {
-
   const payload = {
     stylistId: details.stylistId,
     client: details.clientName || details.clientEmail || "Client",
@@ -255,16 +176,14 @@ async function notifyStylistViaFormspree(details) {
 
   const res = await fetch("https://formspree.io/f/mreaadoz", {
     method: "POST",
-    headers: {
-      "Content-Type":"application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
 
-  if(!res.ok){
-    console.warn("Stylist email failed:",res.status);
+  if (!res.ok) {
+    console.warn("Stylist email failed:", res.status);
   }
-
 }
-
 </script>
+</body>
+</html>
