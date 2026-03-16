@@ -157,14 +157,22 @@ onAuthStateChanged(auth, async (user) => {
       updatedAt: Date.now()
     };
 
-   await set(bookingRef, booking);
+   const finalClientEmail = (details.clientEmail || user.email || "").trim();
+
+await set(bookingRef, {
+  ...booking,
+  clientEmail: finalClientEmail
+});
 
 console.log("BOOKING DETAILS:", details);
-console.log("CLIENT EMAIL:", details.clientEmail);
-console.log("AUTH EMAIL:", auth.currentUser.email);
+console.log("DETAILS EMAIL:", JSON.stringify(details.clientEmail));
+console.log("USER EMAIL:", JSON.stringify(user.email));
+console.log("FINAL EMAIL:", JSON.stringify(finalClientEmail));
 
-await sendClientConfirmation(details);
-
+await sendClientConfirmation({
+  ...details,
+  clientEmail: finalClientEmail
+});
     /* 🔔 Notify stylist */
     try {
 
@@ -201,22 +209,25 @@ await sendClientConfirmation(details);
 
 });
 
-async function sendClientConfirmation(details){
+async function sendClientConfirmation(details) {
+  const emailAddress = (details.clientEmail || "").trim();
 
-  const emailAddress = details.clientEmail || auth.currentUser.email;
-
-  console.log("Sending email to:", emailAddress);
+  if (!emailAddress) {
+    console.error("❌ No customer email found.");
+    return;
+  }
 
   const templateParams = {
     client_name: details.clientName || "Client",
-    service: details.serviceName,
-    date: details.date,
-    time: details.time,
+    service: details.serviceName || "",
+    date: details.date || "",
+    time: details.time || "",
     email: emailAddress
   };
 
-  try {
+  console.log("EmailJS params:", templateParams);
 
+  try {
     const response = await emailjs.send(
       "service_sh63mwi",
       "booking_confirmation",
@@ -225,13 +236,9 @@ async function sendClientConfirmation(details){
     );
 
     console.log("✅ Email sent", response);
-
-  } catch(error) {
-
+  } catch (error) {
     console.error("❌ Email failed:", error);
-
   }
-
 }
 /* 🔔 EMAIL STYLIST */
 async function notifyStylistViaFormspree(details) {
