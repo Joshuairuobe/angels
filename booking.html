@@ -1794,7 +1794,8 @@ const all = Object.entries(snap.val() || {})
     const st = (b.status || "").toLowerCase();
     if (st === "awaiting_payment" && b.expiresAt && now > b.expiresAt) return false;
     return true;
-  });
+  })
+  .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); // newest first
 
     appointmentsList.innerHTML = all.map(b=>{
      const sty = getPublicProfile(b.stylistId);
@@ -1870,7 +1871,7 @@ const styProf =
 
 /* ===================== INIT UI ===================== */
 renderServices();
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_cNidRa98PapU4CqfeM3gk00";
+const STRIPE_PAYMENT_LINK = "https://book.stripe.com/cNidRa98PapU4CqfeM3gk00";
 
 
 const confirmBookingBtn = document.getElementById("confirmBookingBtn");
