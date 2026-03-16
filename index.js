@@ -75,7 +75,84 @@ exports.createPaymentIntent = onRequest(
     });
   }
 );
+exports.sendStylistBookingNotification = onValueCreated(
+  {
+    ref: "/bookings/{bookingId}",
+    secrets: [RESEND_API_KEY]
+  },
+  async (event) => {
+    const booking = event.data.val();
+    const bookingId = event.params.bookingId;
 
+    if (!booking) return;
+    if (booking.status !== "confirmed") return;
+    if (!booking.stylistId) return;
+    if (booking.notification?.stylistNotificationSent === true) return;
+
+    const stylistUserSnap = await admin
+      .database()
+      .ref(`/users/${booking.stylistId}`)
+      .get();
+
+    if (!stylistUserSnap.exists()) {
+      console.log("No stylist user record found:", booking.stylistId);
+      return;
+    }
+
+    const stylistUser = stylistUserSnap.val();
+    const stylistEmail = String(stylistUser.email || "").trim();
+
+    if (!stylistEmail) {
+      console.log("No stylist email found:", booking.stylistId);
+      return;
+    }
+
+    const resend = getResend();
+    const bookingRef = admin.database().ref(`/bookings/${bookingId}`);
+
+    const serviceLabel = Array.isArray(booking.services) && booking.services.length
+      ? booking.services.map(s => s.name).join(" + ")
+      : (booking.serviceName || booking.service || "Service");
+
+    try {
+      const result = await resend.emails.send({
+        from: "Angels Hair Mall <angelshairmallbooking@angelshairmall.co>",
+        to: stylistEmail,
+        reply_to: "angelshairmallbooking@angelshairmall.co",
+        subject: "New booking assigned to you",
+        html: `
+          <div style="font-family: Inter, Arial, sans-serif; color: #111; line-height: 1.6;">
+            <h2>New booking assigned to you</h2>
+            <p><strong>Client:</strong> ${escapeHtml(booking.clientName || "Client")}</p>
+            <p><strong>Client email:</strong> ${escapeHtml(booking.clientEmail || "")}</p>
+            <p><strong>Client phone:</strong> ${escapeHtml(booking.clientPhone || booking.phone || "")}</p>
+            <p><strong>Service:</strong> ${escapeHtml(serviceLabel)}</p>
+            <p><strong>Date:</strong> ${escapeHtml(booking.date || "")}</p>
+            <p><strong>Time:</strong> ${escapeHtml(booking.startTime || booking.time || "")}${booking.endTime ? `–${escapeHtml(booking.endTime)}` : ""}</p>
+            <p><strong>Notes:</strong> ${escapeHtml(booking.notes || "—")}</p>
+          </div>
+        `
+      });
+
+      await bookingRef.child("notification").update({
+        stylistNotificationSent: true,
+        stylistNotificationSentAt: Date.now(),
+        stylistNotificationError: null,
+        stylistResendId: result?.data?.id || null
+      });
+
+      console.log("✅ Stylist notification sent to:", stylistEmail, "booking:", bookingId);
+    } catch (error) {
+      console.error("❌ Stylist notification failed:", bookingId, error);
+
+      await bookingRef.child("notification").update({
+        stylistNotificationSent: false,
+        stylistNotificationSentAt: null,
+        stylistNotificationError: String(error?.message || error)
+      });
+    }
+  }
+);
 /**** 📧 SEND CLIENT BOOKING CONFIRMATION WITH RESEND ****/
 exports.sendBookingConfirmationEmail = onValueCreated(
   {
@@ -119,7 +196,7 @@ exports.sendBookingConfirmationEmail = onValueCreated(
       const remaining = Number(booking.remaining || 0);
 
       const result = await resend.emails.send({
-        from: "Angels Hair Mall <bookings@yourdomain.com>",
+       from: "Angels Hair Mall <angelshairmallbooking@angelshairmall.co>",
         to: clientEmail,
         subject: "Your booking is confirmed",
         html: `
