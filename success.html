@@ -93,7 +93,7 @@ onAuthStateChanged(auth, async (user) => {
       clientPhone: details.clientPhone || "",
       phone: details.clientPhone || "",
 
-      stylistId: details.stylistId,
+      stylistId: details.stylistId || "",
 
       service: details.serviceName || "",
       serviceName: details.serviceName || "",
@@ -120,8 +120,11 @@ onAuthStateChanged(auth, async (user) => {
 
       notification: {
         clientConfirmationSent: false,
-        clientConfirmationError: "",
+        clientConfirmationSentAt: null,
+        clientConfirmationError: null,
         stylistNotificationSent: false,
+        stylistNotificationSentAt: null,
+        stylistNotificationError: null,
         lastAttemptAt: Date.now()
       },
 
@@ -131,24 +134,9 @@ onAuthStateChanged(auth, async (user) => {
 
     await set(bookingRef, booking);
 
-    console.log("BOOKING DETAILS:", details);
-    console.log("DETAILS EMAIL:", JSON.stringify(details.clientEmail));
-    console.log("USER EMAIL:", JSON.stringify(user.email));
+    console.log("✅ Booking saved:", bookingId);
+    console.log("STYLIST ID:", details.stylistId || "");
     console.log("FINAL EMAIL:", JSON.stringify(finalClientEmail));
-
-    try {
-      await notifyStylistViaFormspree({
-        stylistId: details.stylistId,
-        clientName: user.displayName || details.clientName || "",
-        clientEmail: finalClientEmail,
-        services: details.services || [],
-        date: details.date || "",
-        time: details.time || "",
-        notes: details.notes || ""
-      });
-    } catch (err) {
-      console.warn("Stylist notification failed:", err);
-    }
 
     localStorage.removeItem("pendingBookingDetails");
     toastEl.textContent = "✅ Booking confirmed! Redirecting...";
@@ -162,28 +150,6 @@ onAuthStateChanged(auth, async (user) => {
     toastEl.textContent = e.message || "Could not confirm booking.";
   }
 });
-
-async function notifyStylistViaFormspree(details) {
-  const payload = {
-    stylistId: details.stylistId,
-    client: details.clientName || details.clientEmail || "Client",
-    clientEmail: details.clientEmail || "",
-    services: (details.services || []).map(s => s.name).join(" + "),
-    date: details.date,
-    time: details.time,
-    notes: details.notes || "—"
-  };
-
-  const res = await fetch("https://formspree.io/f/mreaadoz", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    console.warn("Stylist email failed:", res.status);
-  }
-}
 </script>
 </body>
 </html>
