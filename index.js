@@ -75,19 +75,24 @@ exports.createPaymentIntent = onRequest(
     });
   }
 );
-exports.sendStylistBookingNotification = onValueCreated(
+const { onValueWritten } = require("firebase-functions/v2/database");
+
+exports.sendStylistBookingNotification = onValueWritten(
   {
     ref: "/bookings/{bookingId}",
     secrets: [RESEND_API_KEY]
   },
   async (event) => {
-    const booking = event.data.val();
+ const booking = event.data.after.val();
     const bookingId = event.params.bookingId;
 
     if (!booking) return;
     if (booking.status !== "confirmed") return;
     if (!booking.stylistId) return;
-    if (booking.notification?.stylistNotificationSent === true) return;
+  if (booking.notification?.stylistNotificationSent === true) {
+  console.log("Stylist email already sent, skipping:", bookingId);
+  return;
+}
 
     const stylistUserSnap = await admin
       .database()
@@ -99,8 +104,9 @@ exports.sendStylistBookingNotification = onValueCreated(
       return;
     }
 
-    const stylistUser = stylistUserSnap.val();
-    const stylistEmail = String(stylistUser.email || "").trim();
+   const stylistUser = stylistUserSnap.val();
+const stylistEmail = String(stylistUser.email || "").trim();
+const stylistName = stylistUser.name || "Stylist";
 
     if (!stylistEmail) {
       console.log("No stylist email found:", booking.stylistId);
@@ -122,7 +128,7 @@ exports.sendStylistBookingNotification = onValueCreated(
         subject: "New booking assigned to you",
         html: `
           <div style="font-family: Inter, Arial, sans-serif; color: #111; line-height: 1.6;">
-            <h2>New booking assigned to you</h2>
+          <h2>New booking for you, ${escapeHtml(stylistName)}</h2>
             <p><strong>Client:</strong> ${escapeHtml(booking.clientName || "Client")}</p>
             <p><strong>Client email:</strong> ${escapeHtml(booking.clientEmail || "")}</p>
             <p><strong>Client phone:</strong> ${escapeHtml(booking.clientPhone || booking.phone || "")}</p>
