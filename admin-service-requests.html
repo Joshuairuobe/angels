@@ -154,8 +154,28 @@ onAuthStateChanged(auth, async (user) => {
 
     /* ---------------- LOAD SERVICES ---------------- */
 
-    const servicesSnap = await get(ref(db, "bookingServices"));
-    const services = {};
+   const [bookingSnap, optionsSnap] = await Promise.all([
+  get(ref(db, "bookingServices")),
+  get(ref(db, "serviceOptions"))
+]);
+
+const services = {};
+
+function flattenServices(obj){
+  Object.entries(obj || {}).forEach(([key, val]) => {
+    if (val && val.name) {
+      services[key] = {
+        ...services[key],
+        ...val
+      };
+    } else if (val && typeof val === "object") {
+      flattenServices(val);
+    }
+  });
+}
+
+flattenServices(bookingSnap.exists() ? bookingSnap.val() : {});
+flattenServices(optionsSnap.exists() ? optionsSnap.val() : {});
 
     function flattenServices(obj){
       Object.entries(obj || {}).forEach(([key,val])=>{
@@ -226,7 +246,7 @@ onAuthStateChanged(auth, async (user) => {
           <div>
             <strong>${s.name}</strong>
             <div class="service-meta">
-              £${s.price} • ${s.duration} mins
+            £${s.price ?? s.priceFrom ?? 0} • ${s.durationMins ?? s.duration ?? 0} mins
             </div>
           </div>
 
